@@ -9,15 +9,16 @@ Package.onUse(function (api) {
     api.versionsFrom('1.0');
 
     api.use([
-        'meteor-platform',
-        'underscore',
-        'accounts-base',
-        'jagi:astronomy'
+        'meteor-base',
+        'mongo',
+        'session',
+        'ecmascript',
+        'accounts-base'
     ]);
 
     api.imply([
-        'meteor-platform',
-        'underscore',
+        'meteor-base',
+        'session',
         'accounts-base'
     ]);
 
@@ -32,13 +33,9 @@ Package.onUse(function (api) {
 
 
     /**
-     * A small ORM to map JS-Classes to MongoDB-Docs
-     */
-    api.addFiles('utilities/orm.js', ['server', 'client']);
-
-    /**
      * Adding objects
      */
+    api.addFiles('spielebuch/base.js', ['server', 'client']);
     api.addFiles('spielebuch/gameobject.js', ['server', 'client']);
     api.addFiles('spielebuch/scene.js', ['server', 'client']);
     api.addFiles('spielebuch/story.js', ['server', 'client']);

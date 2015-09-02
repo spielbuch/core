@@ -13,11 +13,10 @@ if(Meteor.isClient) {
             if(err){
                 console.error(err.error, err.reason);
             }
-            var story = Stories.findOne(storyId);
-            if(story) {
-                cb(story);
+            if(storyId) {
+                cb(new Spielebuch.Story(storyId));
             }else{
-                console.log('No story to tell...');
+                console.error(404, 'No story to tell...');
             }
         });
     };

@@ -1,37 +1,35 @@
 Gameobjects = new Mongo.Collection('gameobjects');
-Gameobject = Astro.Class({
-    name: 'Gameobject',
-    collection: Gameobjects,
-    transform: true,
-    fields: {
-        'name': 'string',
-        'referenceId': 'string',
-        'effects': {
-            type: 'array',
-            default: []
-        },
-        'events': {
-            type: 'object',
-            default: {}
-        },
-        'overrides': {
-            type: 'object',
-            default: {}
-        }
-    },
-    init: function (name, referenceId) {  // Constructor
-        if (typeof name === 'object') {
-            //in this case the object was fetched, we do nothing.
-        } else {
-            this.name = name;
-            this.referenceId = referenceId;
-            this.save();
-        }
-    },
-    methods: {
 
+class Gameobject extends Base {
+    constructor(objectname, referenceId, _id) {
+        var fields = {
+            'name': 'string',
+            'referenceId': 'string',
+            'userId': 'string',
+            'effects': {
+                type: 'array',
+                default: []
+            },
+            'events': {
+                type: 'object',
+                default: {}
+            },
+            'overrides': {
+                type: 'object',
+                default: {}
+            }
+        };
 
+        return super(Gameobjects, fields, _id, {objectname: objectname, referenceId: referenceId});
     }
-});
 
+    onCreate(params) {
+        var self = this;
+        self.onCreate();
+        self.values.name = params.objectname;
+        self.values.referenceId = params.referenceId;
+        self.save();
+    }
+}
 Spielebuch.Gameobject = Gameobject;
+Spielebuch.Gameobjects = Gameobjects;
