@@ -10,19 +10,19 @@ class BaseClass {
         }
         else {
             self._id = _id;
-            self.values = self.getValues(self);
+            self.values = self.load(_id);
         }
 
         return self;
     }
 
     onCreate() {
-        Spielebuch.ServerLog('onCreate was not implemented for');
+        Spielebuch.ServerLog('onCreate was not implemented for ' + this.collection._name + '.');
     }
 
 
-    getValues(context) {
-        return context.collection.findOne(context._id);
+    load(_id) {
+        return context.collection.findOne(_id);
     }
 
     save() {
@@ -47,16 +47,22 @@ class BaseClass {
         Spielebuch.ServerLog(self.values);
         if (self._id) {
             success = self.collection.update(self._id, {$set: self.values});
+            Spielebuch.ServerLog('Update was sucessfull: ' + !!success);
         } else {
-            success = self.collection.insert(self.values);
+            self._id = self.collection.insert(self.values);
+            Spielebuch.ServerLog('Insert was sucessfull, _id: ' + self._id);
         }
-        Spielebuch.ServerLog('Save was sucessfull: '+!!success);
     }
 
     get(key) {
-        var self = this, data = self.collection.findOne(self._id);
-        if(!data){
-            Spielebuch.ServerLog('Object with _id ' + self._id + 'not found.');
+        var self = this, data;
+        if(key==='_id'){
+            //we don't need this reactive, because the _id will never change.
+            return self._id;
+        }
+        data = self.collection.findOne(self._id)
+        if (!data) {
+            Spielebuch.ServerLog('Object with _id ' + self._id + ' not found.');
             return undefined;
         }
         if (!key) {

@@ -56,7 +56,7 @@ class Scene extends Base {
         var re = /[^[\]]+(?=])/, objectnames = re.exec(text);
 
         _.forEach(objectnames, function (objectName) {
-            var newGameobject = new Gameobject(objectName, self._id);
+            var newGameobject = new Spielebuch.Gameobject(objectName, self._id);
             text.replace(new RegExp('\\[' + objectName + '\\]', 'g'), newGameobject._id);
         });
 

@@ -29,10 +29,8 @@ class Story extends Base {
 
 
     addScene(scene) {
-        console.log(scene);
         scene.set('storyId', this._id);
         scene.set('userId', this.userId);
-        console.log(scene.get('_id'))
         this.scenes.push(scene.get('_id'));
         Stories.update(this._id, {
             $push: {
