@@ -12,34 +12,63 @@ Package.onUse(function (api) {
         'meteor-platform',
         'underscore',
         'accounts-base',
-        'ecmascript',
         'jagi:astronomy'
     ]);
 
     api.imply([
         'meteor-platform',
         'underscore',
-        'accounts-base',
-        'ecmascript',
-        'jagi:astronomy'
+        'accounts-base'
     ]);
+
+
 
     api.addFiles('spielebuch.js', ['server', 'client']);
 
+    /**
+     * Add function to log events on serverside
+     */
+    api.addFiles('utilities/server_log.js', ['server', 'client']);
+
+
+    /**
+     * A small ORM to map JS-Classes to MongoDB-Docs
+     */
+    api.addFiles('utilities/orm.js', ['server', 'client']);
 
     /**
      * Adding objects
      */
-    api.addFiles('gamebook/gameobject.js', ['server', 'client']);
-    api.addFiles('gamebook/scene.js', ['server', 'client']);
-    api.addFiles('gamebook/story.js', ['server', 'client']);
-    api.addFiles('gamebook/helper.js', ['server', 'client']);
+    api.addFiles('spielebuch/gameobject.js', ['server', 'client']);
+    api.addFiles('spielebuch/scene.js', ['server', 'client']);
+    api.addFiles('spielebuch/story.js', ['server', 'client']);
+    api.addFiles('spielebuch/player.js', 'client'); //works only on client for now
+    api.addFiles('spielebuch/helper.js', ['server', 'client']);
 
+    /**
+     * Permissions for collections
+     */
+    api.addFiles('utilities/permissions.js', 'server');
 
+    /**
+     * Manipulating user creation
+     */
+    api.addFiles('utilities/login.js', 'server');
     /**
      * Methods
      */
-    api.addFiles('methods.js', 'server');
+    api.addFiles('utilities/methods.js', 'server');
+
+    /**
+     * Publications
+     */
+    api.addFiles('utilities/publications.js', 'server');
+
+    /**
+     * Subscriptions (for data that is always needed)
+     */
+    api.addFiles('utilities/subscriptions.js', 'client');
+
 
 
     if (api.export) {
