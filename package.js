@@ -50,7 +50,7 @@ Package.onUse(function (api) {
     /**
      * Manipulating user creation
      */
-    api.addFiles('utilities/login.js', 'server');
+    api.addFiles('utilities/login.js', ['server', 'client']);
     /**
      * Methods
      */
@@ -60,12 +60,6 @@ Package.onUse(function (api) {
      * Publications
      */
     api.addFiles('utilities/publications.js', 'server');
-
-    /**
-     * Subscriptions (for data that is always needed)
-     */
-    api.addFiles('utilities/subscriptions.js', 'client');
-
 
 
     if (api.export) {

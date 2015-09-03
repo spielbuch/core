@@ -1,47 +1,38 @@
-Scenes = new Mongo.Collection('scenes');
-
 class Scene extends Base {
     constructor(_id) {
         var fields = {
-            'storyId': 'string',
-            'userId': 'string',
-            'text': {
-                type: 'array',
-                default: []
-            },
-            'effects': {
-                type: 'array',
-                default: []
-            },
-            'hooks': {
-                type: 'object',
-                default: {}
-            }
+                'storyId': {
+                    type: String,
+                    default: 'global'
+                },
+                'userId': {
+                    type: String,
+                    default: 'global'
+                },
+                'text': {
+                    type: Array,
+                    default: []
+                },
+                'effects': {
+                    type: Array,
+                    default: []
+                },
+                'hooks': {
+                    type: Object,
+                    default: {}
+                }
+            }, onCreateParams = {},
+            superResult;
+
+        if (arguments.length === 1) {
+            superResult = super('Scenes', fields, _id, {});
+        } else {
+            superResult = super('Scenes', fields, false, onCreateParams);
         }
-        return super(Scenes, fields, _id, []);
+        return superResult;
     }
 
-    addText(text) {
-        var self = this;
-        var markedText = self.createObjectsFromText(text);
-        var result = Scenes.update(self._id, {
-            $push: {
-                text: markedText
-            }
-        });
-        console.log('Updated text: ' + !!result);
-    }
-
-    getText() {
-        var text = '';
-        _.forEach(this.text, function (textpart) {
-            text += ' ' + textpart;
-        });
-        console.log(this.text);
-        return text;
-    }
-    removeGameobjects() {
-
+    onCreate() {
     }
 
     /**
@@ -51,19 +42,30 @@ class Scene extends Base {
      * @param referenceId: The _id of the place, the object is in (_id of scene or user)
      * @returns {{gameobjects: Array, text: String}}
      */
-    createObjectsFromText(text, referenceId) {
-        var self = this;
-        var re = /[^[\]]+(?=])/, objectnames = re.exec(text);
-
+    addText(text) {
+        var self = this, re = /[^[\]]+(?=])/, objectnames = re.exec(text), gameobjectArray = [];
         _.forEach(objectnames, function (objectName) {
-            var newGameobject = new Spielebuch.Gameobject(objectName, self._id);
-            text.replace(new RegExp('\\[' + objectName + '\\]', 'g'), newGameobject._id);
+            var newGameobject = new Spielebuch.Gameobject(objectName, self._id, self.get('userId'));
+            text = text.replace(new RegExp('\\[' + objectName + '\\]', 'g'), '[' + newGameobject.get('_id') + ']');
+            console.log(text);
+            gameobjectArray.push(newGameobject);
         });
+        self.push('text', text);
+        Spielebuch.ServerLog('Added text to scene ' + self._id + '.');
+        return gameobjectArray;
+    }
 
-        return text;
-    };
+    getText() {
+        var self = this;
+        return self.get('text');
+    }
 
-
-};
+    removeGameobjects() {
+        var self = this;
+        Meteor.call('deleteGameobjectsOfReference', self._id);
+    }
+}
+;
 Spielebuch.Scene = Scene;
-Spielebuch.Scenes = Scenes;
+Spielebuch.Scenes = new Mongo.Collection('scenes');
+;

@@ -1,35 +1,52 @@
-Gameobjects = new Mongo.Collection('gameobjects');
-
 class Gameobject extends Base {
-    constructor(objectname, referenceId, _id) {
+    constructor(arg0, arg1, arg2) {
         var fields = {
-            'name': 'string',
-            'referenceId': 'string',
-            'userId': 'string',
+            'name': {
+                type: String,
+                default: 'Unnamed Object'
+            },
+            'referenceId': {
+                type: String,
+                default: 'global'
+            },
+            'userId': {
+                type: String,
+                default: 'global'
+            },
             'effects': {
-                type: 'array',
+                type: Array,
                 default: []
             },
             'events': {
-                type: 'object',
+                type: Object,
                 default: {}
             },
             'overrides': {
-                type: 'object',
+                type: Object,
                 default: {}
             }
-        };
+        }, onCreateParams = {
+            objectname: arg0,
+            referenceId: arg1,
+            userId: arg2
+        }
 
-        return super(Gameobjects, fields, _id, {objectname: objectname, referenceId: referenceId});
+        var superResult;
+        if (arguments.length === 1) {
+            superResult = super('Gameobjects', fields, arg0, {});
+        } else {
+            superResult = super('Gameobjects', fields, false, onCreateParams);
+        }
+        return superResult;
     }
 
     onCreate(params) {
         var self = this;
-        self.onCreate();
-        self.values.name = params.objectname;
-        self.values.referenceId = params.referenceId;
-        self.save();
+        Spielebuch.ServerLog('New Gameobject was created.');
+        self.set('name', params.objectname);
+        self.set('referenceId', params.referenceId);
+        self.set('userId', params.userId);
     }
 }
 Spielebuch.Gameobject = Gameobject;
-Spielebuch.Gameobjects = Gameobjects;
+Spielebuch.Gameobjects = new Mongo.Collection('gameobjects');

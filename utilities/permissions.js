@@ -1,17 +1,10 @@
 var ownStuff = {
-    insert: function(userId, doc){
-        return doc.userId === userId;
-    },
     update: function(userId, doc){
-        return doc.userId === userId;
-    },
-    remove: function(userId, doc){
-        return doc.userId === userId;
+        return doc.userId === userId || doc.userId === 'global';
     },
     fetch: ['userId']
-}
+};
 
-
-Stories.allow(ownStuff);
-Scenes.allow(ownStuff);
-Gameobjects.allow(ownStuff);
+Spielebuch.Stories.allow(ownStuff);
+Spielebuch.Scenes.allow(ownStuff);
+Spielebuch.Gameobjects.allow(ownStuff);

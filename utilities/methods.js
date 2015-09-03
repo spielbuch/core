@@ -1,20 +1,4 @@
 Meteor.methods({
-    setUsersStory: function (storyId) {
-        if (this.userId === null) {
-            throw new Meteor.Error('403', 'User is not logged in.');
-        }
-        Spielebuch.ServerLog('Setting story ' + storyId + ' for user ' + this.userId + '.');
-        check(storyId, String);
-        if (this.userId === null) {
-            throw new Meteor.Error('403', 'User is not logged in.');
-        }
-        var update = Meteor.users.update(this.userId, {
-            $set: {
-                storyId: storyId
-            }
-        });
-        Spielebuch.ServerLog('Userdoc update worked: ' + !!update);
-    },
     getUsersStoryId: function () {
         if (this.userId === null) {
             throw new Meteor.Error('403', 'User is not logged in.');
@@ -33,11 +17,11 @@ Meteor.methods({
             throw new Meteor.Error('403', 'User is not logged in.');
         }
         Spielebuch.ServerLog('Deleting stories of user: ' + this.userId);
-        Stories.find({
+        Spielebuch.Stories.find({
             'userId': this.userId
         }).map(function (story) {
             Meteor.call('deleteScenesOfStory', story._id);
-            Stories.remove(story._id);
+            Spielebuch.Stories.remove(story._id);
         });
     },
     deleteScenesOfStory: function (storyId) {
@@ -45,16 +29,16 @@ Meteor.methods({
         if (this.userId === null) {
             throw new Meteor.Error('403', 'User is not logged in.');
         }
-        Scenes.find({
+        Spielebuch.Scenes.find({
             'userId': this.userId
         }).map(function (scene) {
             Meteor.call('deleteGameobjectsOfReference', scene._id);
-            result = Scenes.remove(scene._id);
+            result = Spielebuch.Scenes.remove(scene._id);
             if(!result){
                 error = true;
             }
         });
-        result = Stories.update(storyId, {
+        result = Spielebuch.Stories.update(storyId, {
             $set: {
                 scenes: [],
                 history: []
@@ -68,6 +52,6 @@ Meteor.methods({
             throw new Meteor.Error('403', 'User is not logged in.');
         }
         Spielebuch.ServerLog('Removing objects of reference (user or scene): ' + referenceId);
-        Gameobjects.remove({referenceId: referenceId});
+        Spielebuch.Gameobjects.remove({referenceId: referenceId});
     }
 });
