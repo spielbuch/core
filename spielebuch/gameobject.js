@@ -1,6 +1,21 @@
 class Gameobject extends Base {
-    constructor(arg0, arg1, arg2) {
-        var fields = {
+    constructor(objectname, referenceId, userId) {
+        if(super()) {
+            this.onCreate(objectname, referenceId, userId);
+        }
+    }
+
+    onCreate(objectname, referenceId, userId) {
+        var self = this;
+        Spielebuch.log('New Gameobject was created.');
+        self.set('name', objectname);
+        self.set('referenceId', referenceId);
+        self.set('userId', userId);
+    }
+
+
+    getFields(){
+        return {
             'name': {
                 type: String,
                 default: 'Unnamed Object'
@@ -25,27 +40,10 @@ class Gameobject extends Base {
                 type: Object,
                 default: {}
             }
-        }, onCreateParams = {
-            objectname: arg0,
-            referenceId: arg1,
-            userId: arg2
-        }
-
-        var superResult;
-        if (arguments.length === 1) {
-            superResult = super('Gameobjects', fields, arg0, {});
-        } else {
-            superResult = super('Gameobjects', fields, false, onCreateParams);
-        }
-        return superResult;
+        };
     }
-
-    onCreate(params) {
-        var self = this;
-        Spielebuch.ServerLog('New Gameobject was created.');
-        self.set('name', params.objectname);
-        self.set('referenceId', params.referenceId);
-        self.set('userId', params.userId);
+    getCollection(){
+        return 'Gameobjects';
     }
 }
 Spielebuch.Gameobject = Gameobject;

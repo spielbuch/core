@@ -1,23 +1,44 @@
 class BaseClass {
-    constructor(collection, fields, _id, params) {
+    /**
+     * If a story is written, it always happens on the server.
+     * This means, if we call new Object(), we want the Object to be created on the database.
+     * If we call new Object from the client, we always want to load the object, because the client cannot insert new objects.
+     * @returns {boolean} Returns true when onCreate should be called in the subclass.
+     */
+    constructor() {
         var self = this;
-        self.collection = collection;
-        self.fields = fields;
-        if (!_id) {
+        if (Meteor.isServer) {
             self._id = self.setDefault();
-            Spielebuch.ServerLog('New Object in ' + collection + ' was created. The _id is ' + self._id + '.');
-            self.onCreate(params);
+            Spielebuch.log('New Object in ' + self.getCollection() + ' was created. The _id is ' + self._id + '.');
+            return true;
         }
-        else {
-            self._id = _id;
-        }
+        return false;
+    }
 
-        return self;
+    getFields() {
+        Spielebuch.log('There are no fields implemented for ' + self.constructor.name + '.');
+    }
+
+    getCollection() {
+        Spielebuch.log('There is no collection defined for ' + self.constructor.name + '.');
+    }
+
+;
+
+    load(_id) {
+        var self = this;
+        var count = Spielebuch[self.getCollection()].find({_id: _id}, {_id: 1, limit: 1}).count();
+        if (count === 0) {
+            Spielebuch.error(404, 'Object with _id ' + _id + ' was not found in ' + self.getCollection() + '.');
+            return false;
+        }
+        self._id = _id;
+        return true;
     }
 
     onCreate() {
         var self = this;
-        Spielebuch.ServerLog('onCreate was not implemented for ' + self.collection + '.');
+        Spielebuch.log('onCreate was not implemented for ' + self.getCollection() + '.');
     }
 
     /**
@@ -25,11 +46,9 @@ class BaseClass {
      */
     setDefault() {
         var self = this, insert = {};
-        _.forEach(self.fields, function (field, key) {
+        _.forEach(self.getFields(), function (field, key) {
             if (field.default) {
                 insert[key] = field.default;
-            } else {
-                insert[key] = field();
             }
         });
         return self.set(insert);
@@ -38,9 +57,9 @@ class BaseClass {
     validate(key, value) {
         var self = this, data, field;
         if (typeof key === 'string' && value) {
-            field = self.fields[key];
+            field = self.getFields()[key];
             if (!field) {
-                throw new Meteor.Error('500', 'The Field ' + key + ' is not defined.');
+                Spielebuch.error(500, 'The Field ' + key + ' is not defined.');
             }
             if (field.type) {
                 check(value, field.type);
@@ -53,9 +72,9 @@ class BaseClass {
                 if (fieldKey !== '_id') {
                     return;
                 }
-                field = self.fields[fieldKey];
+                field = self.getFields()[fieldKey];
                 if (!field) {
-                    throw new Meteor.Error('500', 'The Field ' + key + ' is not defined.');
+                    Spielebuch.error(500, 'The Field ' + key + ' is not defined.');
                 }
                 if (field.default && !data[fieldKey]) {
                     data[fieldKey] = field.default;
@@ -70,7 +89,7 @@ class BaseClass {
             /**
              * key is no string, but a value exist. This should not happen.
              */
-            throw new Meteor.Error('500', 'The update went wrong. Base.validate() was misused.');
+            Spielebuch.error(500, 'The update went wrong. Base.validate() was misused.');
         }
     }
 
@@ -81,9 +100,9 @@ class BaseClass {
             //we don't need this reactive, because the _id will never change.
             return self._id;
         }
-        data = Spielebuch[self.collection].findOne(self._id);
+        data = Spielebuch[self.getCollection()].findOne(self._id);
         if (!data) {
-            Spielebuch.ServerLog('Object with _id ' + self._id + ' not found.');
+            Spielebuch.log('Object with _id ' + self._id + ' not found in ' + self.getCollection() + '.');
             return undefined;
         }
         if (!key) {
@@ -92,7 +111,7 @@ class BaseClass {
         if (typeof key === 'string') {
             return data[key];
         } else {
-            Spielebuch.ServerLog('Key ' + key + 'is not a string.');
+            Spielebuch.log('Key ' + key + 'is not a string.');
         }
     }
 
@@ -111,12 +130,12 @@ class BaseClass {
             /**
              * key is no string, but a value exist. This should not happen.
              */
-            throw new Meteor.Error('500', 'The update went wrong. Base.set() was misused.');
+            Spielebuch.error('500', 'The update went wrong. Base.set() was misused.');
         }
         if (self._id) {
-            return Spielebuch[self.collection].update(self._id, {$set: update});
+            return Spielebuch[self.getCollection()].update(self._id, {$set: update});
         } else {
-            return Spielebuch[self.collection].insert(update);
+            return Spielebuch[self.getCollection()].insert(update);
         }
     }
 
@@ -128,7 +147,7 @@ class BaseClass {
     push(key, value) {
         var self = this, update = {};
         update[key] = value;
-        return Spielebuch[self.collection].update(self._id, {
+        return Spielebuch[self.getCollection()].update(self._id, {
             $push: update
         });
     }
@@ -140,9 +159,7 @@ class BaseClass {
      */
     last(key) {
         var self = this;
-            return _.last(self.get(key));
-
-
+        return _.last(self.get(key));
     }
 }
 Base = BaseClass;

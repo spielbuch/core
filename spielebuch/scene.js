@@ -1,39 +1,43 @@
 class Scene extends Base {
-    constructor(_id) {
-        var fields = {
-                'storyId': {
-                    type: String,
-                    default: 'global'
-                },
-                'userId': {
-                    type: String,
-                    default: 'global'
-                },
-                'text': {
-                    type: Array,
-                    default: []
-                },
-                'effects': {
-                    type: Array,
-                    default: []
-                },
-                'hooks': {
-                    type: Object,
-                    default: {}
-                }
-            }, onCreateParams = {},
-            superResult;
-
-        if (arguments.length === 1) {
-            superResult = super('Scenes', fields, _id, {});
-        } else {
-            superResult = super('Scenes', fields, false, onCreateParams);
+    constructor() {
+        if(super()) {
+            this.onCreate();
         }
-        return superResult;
     }
+    getFields(){
+        return {
+            'storyId': {
+                type: String,
+                default: 'global'
+            },
+            'userId': {
+                type: String,
+                default: 'global'
+            },
+            'text': {
+                type: Array,
+                default: []
+            },
+            'effects': {
+                type: Array,
+                default: []
+            },
+            'hooks': {
+                type: Object,
+                default: {}
+            }
+        };
+    }
+
+    getCollection(){
+        return 'Scenes';
+    }
+
 
     onCreate() {
     }
+
+
 
     /**
      * Creates gameobjets from a text with markup.
@@ -43,21 +47,16 @@ class Scene extends Base {
      * @returns {{gameobjects: Array, text: String}}
      */
     addText(text) {
-        var self = this, re = /[^[\]]+(?=])/, objectnames = re.exec(text), gameobjectArray = [];
-        _.forEach(objectnames, function (objectName) {
-            var newGameobject = new Spielebuch.Gameobject(objectName, self._id, self.get('userId'));
-            text = text.replace(new RegExp('\\[' + objectName + '\\]', 'g'), '[' + newGameobject.get('_id') + ']');
-            console.log(text);
-            gameobjectArray.push(newGameobject);
-        });
-        self.push('text', text);
-        Spielebuch.ServerLog('Added text to scene ' + self._id + '.');
-        return gameobjectArray;
-    }
+        var self = this, re = /[^[\]]+(?=])/, objects = re.exec(text), objectname, gameobject;
 
-    getText() {
-        var self = this;
-        return self.get('text');
+        if(objects!==null){
+            objectname = objects[0];
+            gameobject = new Spielebuch.Gameobject(objectname, self._id, self.get('userId'));
+            text = text.replace(new RegExp('\\[' + objectname + '\\]', 'g'), '[' + gameobject.get('_id') + ']');
+        }
+        self.push('text', text);
+        Spielebuch.log('Added text to scene ' + self._id + '.');
+        return gameobject;
     }
 
     removeGameobjects() {
@@ -68,4 +67,4 @@ class Scene extends Base {
 ;
 Spielebuch.Scene = Scene;
 Spielebuch.Scenes = new Mongo.Collection('scenes');
-;
+

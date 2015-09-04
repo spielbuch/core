@@ -1,10 +1,10 @@
 Meteor.methods({
     getUsersStoryId: function () {
         if (this.userId === null) {
-            throw new Meteor.Error('403', 'User is not logged in.');
+            Spielebuch.error('403', 'User is not logged in.');
         }
         var user = Meteor.users.findOne(this.userId);
-        Spielebuch.ServerLog('Fetching user\'s (' + this.userId + ') storyId (' + user.storyId + ').');
+        Spielebuch.log('Fetching user\'s (' + this.userId + ') storyId (' + user.storyId + ').');
         return user.storyId;
     },
 
@@ -14,9 +14,9 @@ Meteor.methods({
      */
     deleteStoryOfUser: function () {
         if (this.userId === null) {
-            throw new Meteor.Error('403', 'User is not logged in.');
+            Spielebuch.error('403', 'User is not logged in.');
         }
-        Spielebuch.ServerLog('Deleting stories of user: ' + this.userId);
+        Spielebuch.log('Deleting stories of user: ' + this.userId);
         Spielebuch.Stories.find({
             'userId': this.userId
         }).map(function (story) {
@@ -27,7 +27,7 @@ Meteor.methods({
     deleteScenesOfStory: function (storyId) {
         var error, result;
         if (this.userId === null) {
-            throw new Meteor.Error('403', 'User is not logged in.');
+            Spielebuch.error('403', 'User is not logged in.');
         }
         Spielebuch.Scenes.find({
             'userId': this.userId
@@ -45,13 +45,13 @@ Meteor.methods({
             }
         });
         result = result && !error
-        Spielebuch.ServerLog('All scenes removed: ' + result);
+        Spielebuch.log('All scenes removed: ' + result);
     },
     deleteGameobjectsOfReference: function (referenceId) {
         if (this.userId === null) {
-            throw new Meteor.Error('403', 'User is not logged in.');
+            Spielebuch.error('403', 'User is not logged in.');
         }
-        Spielebuch.ServerLog('Removing objects of reference (user or scene): ' + referenceId);
+        Spielebuch.log('Removing objects of reference (user or scene): ' + referenceId);
         Spielebuch.Gameobjects.remove({referenceId: referenceId});
     }
 });

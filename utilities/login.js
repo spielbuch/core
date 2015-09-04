@@ -6,8 +6,3 @@ if (Meteor.isServer) {
         return user;
     });
 }
-if (Meteor.isClient) {
-    Session.setDefault('storyId', -1);
-    Accounts.onLogin(Spielebuch.subscribe);
-    Meteor.startup(Spielebuch.subscribe);
-}

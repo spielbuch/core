@@ -18,18 +18,18 @@ Package.onUse(function (api) {
 
     api.imply([
         'meteor-base',
-        'session',
         'accounts-base'
     ]);
 
 
 
     api.addFiles('spielebuch.js', ['server', 'client']);
+    api.addFiles('utilities/startup.js', ['server', 'client']);
 
     /**
      * Add function to log events on serverside
      */
-    api.addFiles('utilities/server_log.js', ['server', 'client']);
+    api.addFiles('utilities/log.js', ['server', 'client']);
 
 
     /**
@@ -60,6 +60,12 @@ Package.onUse(function (api) {
      * Publications
      */
     api.addFiles('utilities/publications.js', 'server');
+
+    /**
+     * Observer
+     * Observes changes on text and refreshes view
+     */
+    api.addFiles('utilities/observer_client.js', 'client');
 
 
     if (api.export) {
