@@ -36,10 +36,16 @@ Package.onUse(function (api) {
      * Adding objects
      */
     api.addFiles('spielebuch/base.js', ['server', 'client']);
+    api.addFiles('spielebuch/effect.js', ['server', 'client']);
+
     api.addFiles('spielebuch/gameobject.js', ['server', 'client']);
     api.addFiles('spielebuch/scene.js', ['server', 'client']);
     api.addFiles('spielebuch/story.js', ['server', 'client']);
-    api.addFiles('spielebuch/player.js', 'client'); //works only on client for now
+
+
+    api.addFiles('spielebuch/rule.js', ['server', 'client']);
+
+    api.addFiles('spielebuch/player.js', 'client');
     api.addFiles('spielebuch/helper.js', ['server', 'client']);
 
     /**

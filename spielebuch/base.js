@@ -10,9 +10,10 @@ class BaseClass {
         if (Meteor.isServer) {
             self._id = self.setDefault();
             Spielebuch.log('New Object in ' + self.getCollection() + ' was created. The _id is ' + self._id + '.');
-            return true;
+            self.created = true;
+        }else{
+            self.created = false;
         }
-        return false;
     }
 
     getFields() {

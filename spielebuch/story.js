@@ -1,7 +1,9 @@
 class Story extends Base {
     constructor() {
-        if (super()) {
-            this.onCreate();
+        super();
+        var self = this;
+        if(self.created){
+            self.onCreate();
         }
     }
 

@@ -1,7 +1,9 @@
-class Gameobject extends Base {
+class Gameobject extends HasEffects {
     constructor(objectname, referenceId, userId) {
-        if(super()) {
-            this.onCreate(objectname, referenceId, userId);
+        super();
+        var self = this;
+        if(self.created){
+            self.onCreate();
         }
     }
 
