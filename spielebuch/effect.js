@@ -20,19 +20,33 @@ class Effect {
 
     }
 
+
+    /**
+     * Returns the properties as JSON
+     * @returns {{name: *, rules: Array}}
+     */
     getJSON() {
+        var self = this;
         return {
             name: self.name,
             rules: self.rules
         }
     }
 
+    getRules(){
+        var self = this, result = [];
+        _.each(self.rules, function(rule){
+            result.push(new Spielebuch.Rule(rule.key, rule.value));
+        });
+        return result;
+    }
+
     /**
-     * Returns the effective values of an effect, by calculating the rules.
-     * @returns {Array}
+     * Returns effective stats as an object {propertyname: propertyvalue}, by calculating the rules
+     * @returns {{}}
      */
-    getValues() {
-        var stats = {}, result = [];
+    getProperties(){
+        var self = this, stats = {};
         _.each(self.rules, function (rule) {
             /**
              * If the stats already have his key (e.g. Hitpoints),
@@ -55,7 +69,17 @@ class Effect {
                 }
             }
         });
-        result = _.pairs(stats);
+        return stats;
+    }
+    /**
+     * Returns the effective rules of an effect, by translating getProperties into an array of rules.
+     * @returns [Rule]
+     */
+    getPropertiesArray() {
+        var self = this, result = [];
+        _.each(self.getProperties(), function(value, key){
+            result.push(new Spielebuch.Rule(key, value));
+        })
         return result;
     }
 }
@@ -68,22 +92,32 @@ class HasEffectsClass extends Base {
     }
 
     addEffect(effect) {
+        var self = this;
         self.push('effects', effect.getJSON());
     }
 
     getObjectEffect() {
-        var objectEffect = new Effect(self.name + 'Effect', self.getAllRules());
+        var self = this, objectEffect = new Effect(self.name + 'Effect', self.getRules());
         return objectEffect;
     }
 
     /**
      * Returns an array with all the rules for this object.
      * The rules are already calculated.
+     * @returns {{}}
+     */
+    getProperties() {
+        var self = this, objectEffect = self.getObjectEffect();
+        return objectEffect.getProperties();
+    }
+
+    /**
+     *
      * @returns {Array}
      */
-    getStats() {
-        var objectEffect = self.getObjectEffect();
-        return objectEffect.getValues();
+    getPropertiesArray(){
+        var self = this, objectEffect = self.getObjectEffect();
+        return objectEffect.getPropertiesArray();
     }
 
     /**
@@ -92,7 +126,7 @@ class HasEffectsClass extends Base {
      * @returns {Array}
      */
     getEffects() {
-        var effects = self.get('effects'), result = [];
+        var self = this, effects = self.get('effects'), result = [];
         _.forEach(effects, function (effect) {
             result.push(new Spielebuch.Effect(effect.name, effect.rules));
         });
@@ -100,14 +134,21 @@ class HasEffectsClass extends Base {
     }
 
 
+
+    getEffectNames(){
+        var self = this;
+        return _.pluck(self.get('effects'),'name');
+    }
+
+
     /**
      * Returns an array with all rules of this object.
      * @returns {Array}
      */
-    getAllRules() {
-        var effects = self.getEffects(), result = [];
+    getRules() {
+        var self = this, effects = self.getEffects(), result = [];
         _.each(effects, function (effect) {
-            result = result.concat(effect.getValues());
+            result = result.concat(effect.getRules());
         });
         return result;
     }

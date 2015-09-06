@@ -121,13 +121,16 @@ class BaseClass {
         if (typeof key === 'string' && value) {
             self.validate(key, value);
             update[key] = value;
-        } else if (!value) {
+        } else if (!value && typeof key==='object') {
             /**
              * If there is no value and
              */
             update = key;
             self.validate(key);
         } else {
+            console.log('Values in set:')
+            console.log(key);
+            console.log(value);
             /**
              * key is no string, but a value exist. This should not happen.
              */

@@ -3,7 +3,7 @@ class Gameobject extends HasEffects {
         super();
         var self = this;
         if(self.created){
-            self.onCreate();
+            self.onCreate(objectname, referenceId, userId);
         }
     }
 
@@ -44,6 +44,27 @@ class Gameobject extends HasEffects {
             }
         };
     }
+
+    getEvents(){
+        var self = this;
+        //return _.keys(self.get('events'));
+        return [
+            //{name:'explore',icon:'fa-info'},
+            {name:'interact',icon:'fa-info'},
+            {name:'attack',icon:'fa-info'},
+            {name:'walk',icon:'fa-info'}
+        ];
+
+    }
+
+    setEvent(){
+        if(Meteor.isServer){
+
+        }else{
+            Spielebuch.error(500, 'The client is not allowed to set an event, for it would be madness!');
+        }
+    }
+
     getCollection(){
         return 'Gameobjects';
     }

@@ -5,7 +5,7 @@
 Spielebuch.helper = {};
 
 Spielebuch.helper.getStoryById = function(storyId){
-    return Stories.findOne(storyId);
+    return Spielebuch.Stories.findOne(storyId);
 };
 
 

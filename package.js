@@ -48,6 +48,18 @@ Package.onUse(function (api) {
     api.addFiles('spielebuch/player.js', 'client');
     api.addFiles('spielebuch/helper.js', ['server', 'client']);
 
+
+    /**
+     * With this class functions are stored as a string in the database.
+     * The client should only have read access.
+     * If Malory can manipulate these, he can execute javascript on the clients browser.
+     * This would be very awkward, so stored_function can inserted, updated or removed by the server.
+     *
+     * Every user should be able to read every function stored in here,
+     * they are executed on their system, so transparency is imho necessary.
+     */
+    api.addFiles('spielebuch/stored_functions.js', ['server', 'client']);
+
     /**
      * Permissions for collections
      */
