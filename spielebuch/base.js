@@ -148,9 +148,6 @@ class BaseClass {
             update = key;
             self.validate(key);
         } else {
-            console.log('Values in set:')
-            console.log(key);
-            console.log(value);
             /**
              * key is no string, but a value exist. This should not happen.
              */
@@ -194,4 +191,4 @@ class BaseClass {
         return _.last(self.get(key));
     }
 }
-Base = BaseClass;
+Spielebuch.Base = BaseClass;

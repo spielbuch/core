@@ -28,15 +28,14 @@ Spielebuch = {
  * Functions that exist only on the client.
  */
 if (Meteor.isClient) {
-    Spielebuch.init = function () {
-        Session.set('spielebuchReady',false);
-        if (Session.get('storyId') !== -1) {
-            //onStartup has already been executed
-            return;
-        }
+    Spielebuch.init = function (cb) {
+        Spielebuch.log('Initializing story...')
+        Session.set('spielebuchReady', false);
         if (Meteor.user()) {
+            Spielebuch.log('Subscribing...')
             Meteor.subscribe('userStory', {
                     onReady: function () {
+                        Spielebuch.log('Subscription is ready.')
                         if (!Meteor.user()) {
                             //no user logged in. Ignore it silently.
                             return;
@@ -46,40 +45,58 @@ if (Meteor.isClient) {
                             Spielebuch.error(500, 'There is no story set.');
                             return;
                         }
-                        var story = Spielebuch.Stories.findOne(storyId);
-                        if (!story) {
-                            Spielebuch.error(404, 'The story ' + storyId + ' was not found in database.');
-                            return;
-                        }
-                        var playingSceneId = _.last(story.history);
-                        if (playingSceneId) {
-                            Session.set('playingSceneId', playingSceneId);
-                        }
-                        if (Session.get('playingSceneId') === -1) {
-                            //There is no playing story,
-                            Spielebuch.error(404, 'There is no scene in story ' + Session.get('storyId') +
-                                ' history. Make sure that you called \'Story.start()\'.');
-                            return;
-                        }
-                        var playingScene = Spielebuch.Scenes.findOne(playingSceneId);
-                        if (!playingScene) {
-                            Spielebuch.error(404, 'The scene '+playingScene+' was not found in the database.');
-                            return;
-                        }
-                        Session.set('spielebuchReady',true);
-                        Session.set('spielebuchText', playingScene.text);
-                        observeStory();
+                        Spielebuch.log('Found story.');
+                        Session.set('storyId', Meteor.user().storyId);
 
 
+                        /**
+                         * Keep track of storyId and set the playing scene accordingly
+                         */
+                        Tracker.autorun(function () {
+                            var story = Spielebuch.Stories.findOne(Session.get('storyId')), playingSceneId;
+                            if (!story) {
+                                Spielebuch.error(404, 'There is no story ' + Session.get('storyId') + '.');
+                                return;
+                            }
+                            playingSceneId = _.last(story.history);
+                            if (!playingSceneId) {
+                                Spielebuch.error(404, 'There is no scene in story ' + Session.get('storyId') +
+                                    ' history. Make sure that you called \'Story.start()\'.');
+                            } else {
+                                Session.set('playingSceneId', playingSceneId);
+                            }
+
+                        });
+                        Spielebuch.log('Tracking scene.')
+
+                        /**
+                         * Keep track of the playingSceneId and change the text accordingly
+                         */
+                        Tracker.autorun(function () {
+                            var playingScene = Spielebuch.Scenes.findOne(Session.get('playingSceneId'));
+                            if (!playingScene) {
+                                Spielebuch.error(404, 'The scene ' + Session.get('playingSceneId') + ' was not found in the database.');
+                            } else {
+                                Session.set('spielebuchText', playingScene.text);
+                                Spielebuch.log('Text of scene was set.');
+                                Session.set('spielebuchReady', true);
+                            }
+                        });
+
+
+                        Spielebuch.log('Spielebuch:core is ready.');
+                        return cb();
                     },
-                    onError: function () {
+                    onError: function (err) {
                         Spielebuch.error(500, 'Something went wrong with the subscription.');
+                        return cb(err);
                     }
                 }
             );
         }
     };
 
+    Spielebuch.getPlayingSceneId =
 
     /**
      * Please do not change this comment,
@@ -88,8 +105,8 @@ if (Meteor.isClient) {
      * Use this notice on a prominent place (e.g. footer) and add a link to the repository with the code you use, and we are good ;)
      * - Daniel Budick-
      */
-    Spielebuch.copyrightNotice = 'This application is based on <a href=\"https://github.com/spielebuch/core\" title=\"Spielebuch is a framework to create interactive books\">Spielebuch</a>.<br/>' +
-        'Copyright 2015 Daniel Budick, All rights reserved.' +
-        'Spielebuch is free software: you can redistribute it and/or modify it under the terms of the <a href=\"https://github.com/spielebuch/core/blob/master/LICENSE\">GNU Affero General Public License</a>.<br/>' +
-        'To get a commercial license, you can contact spielebuch@budick.eu';
+        Spielebuch.copyrightNotice = 'This application is based on <a href=\"https://github.com/spielebuch/core\" title=\"Spielebuch is a framework to create interactive books\">Spielebuch</a>.<br/>' +
+            'Copyright 2015 Daniel Budick, All rights reserved.' +
+            'Spielebuch is free software: you can redistribute it and/or modify it under the terms of the <a href=\"https://github.com/spielebuch/core/blob/master/LICENSE\">GNU Affero General Public License</a>.<br/>' +
+            'To get a commercial license, you can contact spielebuch@budick.eu';
 }

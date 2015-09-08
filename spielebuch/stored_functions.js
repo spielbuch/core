@@ -32,13 +32,57 @@ Spielebuch.StoredFunctions = new Mongo.Collection('storedFunctions');
 Spielebuch.StoredFunction = {};
 
 if (Meteor.isServer) {
+
+    /**
+     * Variables in this object will be available in stored functions.
+     */
+    Spielebuch.vars = {};
+    Meteor.methods({
+        createFncString: function (fncId, _id) {
+            var doc = Spielebuch.StoredFunctions.findOne(fncId);
+            if (doc && doc.fncString) {
+                /**
+                 * The player needs access to the story, the current scene and the activated gameobject.
+                 * @type {string}
+                 */
+                var eventVariable = 'var story = new Spielebuch.Story();story.load(Meteor.user().storyId);' +
+                    'var _id = \'' + _id + '\';' +
+                    'if(_id){' +
+                    'var self = new Spielebuch.Gameobject();' +
+                    'var res = self.load(_id);' +
+                    'if(!res){' +
+                    'self = new Spielebuch.Scene();' +
+                    'self.load(_id);' +
+                    '}else{' +
+                    'var scene = new Spielebuch.Scene();' +
+                    'scene.load(Session.get(\'playingSceneId\'));' +
+                    '}' +
+                    '}';
+
+
+                _.each(Spielebuch.vars, function (value, varname) {
+                    if (typeof value === 'boolean' || typeof value === 'number') {
+                        eventVariable += 'var ' + varname + '=' + value + ';';
+                    }
+                    if (typeof value === 'string') {
+                        eventVariable += 'var ' + varname + '=\'' + value + '\';';
+                    }
+                });
+                return eventVariable + doc.fncString;
+            }
+        }
+    });
+
+    /**
+     * Only the removeal of own stored functions should be allowed to the client
+     */
     Spielebuch.StoredFunctions.allow({
-       remove: function(userId, doc){
-           /**
-            * An user is allowed to delete his own stored functions.
-            */
-           return (userId && doc.owner === userId);
-       }
+        remove: function (userId, doc) {
+            /**
+             * An user is allowed to delete his own stored functions.
+             */
+            return (userId && doc.owner === userId);
+        }
     });
 
     Spielebuch.StoredFunctions.deny({
@@ -63,7 +107,6 @@ if (Meteor.isServer) {
     Meteor.publish('allStoredFunctions', function () {
         return Spielebuch.StoredFunctions.find();
     });
-
 
     /**
      * Saves functionstring to database.
@@ -90,15 +133,14 @@ if (Meteor.isServer) {
 /**
  * Functions stored in the databse should only be executed on the client.
  */
-if(Meteor.isClient) {
-    Spielebuch.StoredFunction.execute = function (fncId) {
-        var functionString = 'console.log(\'Function not found.\')', doc, fnc;
-        check(fncId, String);
-        doc = Spielebuch.StoredFunctions.findOne(fncId);
-        if (doc && doc.fncString) {
-            fncString = doc.fncString
-        }
-        fnc = new Function(fncString);
-        (fnc());
-    }
+if (Meteor.isClient) {
+    Spielebuch.StoredFunction.execute = function (fncId, _id) {
+        Meteor.call('createFncString', fncId, _id, function (err, fncString) {
+            if(err){
+                Spielebuch.error(500,err);
+            }
+            var fnc = new Function(fncString);
+            (fnc());
+        });
+    };
 }

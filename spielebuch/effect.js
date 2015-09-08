@@ -106,7 +106,7 @@ class Effect {
 Spielebuch.Effect = Effect;
 
 
-class HasEffectsClass extends Base {
+class HasEffectsClass extends Spielebuch.Base {
     constructor() {
         super();
     }
@@ -174,4 +174,4 @@ class HasEffectsClass extends Base {
     }
 
 }
-HasEffects = HasEffectsClass;
+Spielebuch.HasEffects = HasEffectsClass;

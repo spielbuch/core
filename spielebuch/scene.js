@@ -18,15 +18,16 @@
  * along with spielebuch:core. If not, see <http://www.gnu.org/licenses/>.
  */
 
-class Scene extends Base {
+class Scene extends Spielebuch.Base {
     constructor() {
         super();
         var self = this;
-        if(self.created){
+        if (self.created) {
             self.onCreate();
         }
     }
-    getFields(){
+
+    getFields() {
         return {
             'storyId': {
                 type: String,
@@ -59,8 +60,20 @@ class Scene extends Base {
         };
     }
 
-    getCollection(){
+    getCollection() {
         return 'Scenes';
+    }
+
+    removeGameobject(_id) {
+        var self = this, text = self.get('text');
+        _.each(text, function (sentence, key) {
+            if (typeof sentence === 'string') {
+                if (sentence.indexOf(_id)!==-1) {
+                    return text.splice(key, 1);
+                }
+            }
+        });
+        self.set('text', text);
     }
 
 
@@ -75,11 +88,11 @@ class Scene extends Base {
      * @returns {{gameobjects: Array, text: String}}
      */
     addText(text) {
-        if(Meteor.isServer) {
+        if (Meteor.isServer) {
             var self = this, re = /[^[\]]+(?=])/, objects = re.exec(text), objectname, gameobject;
             if (objects !== null) {
                 objectname = objects[0];
-                gameobject = new Spielebuch.Gameobject(objectname, self._id, self.get('userId'));
+                gameobject = new Spielebuch.Gameobject(objectname, self._id, self.get('userId'), self.get('_id'));
                 text = text.replace(new RegExp('\\[' + objectname + '\\]', 'g'), '[' + gameobject.get('_id') + ']');
             }
             self.push('text', text);
@@ -88,33 +101,34 @@ class Scene extends Base {
         }
     }
 
-    onFirstVisit(fnc){
-        if(Meteor.isServer) {
-            var self = this, fncId = Spielebuch.StoredFunction.save(fnc, self.get('userId'));
+    onFirstVisit(fnc) {
+        if (Meteor.isServer) {
+            var self = this, fncId = Spielebuch.StoredFunction.save(fnc, self.get('userId'), self.get('_id'));
             self.set('onFirstVisit', fncId);
         }
     }
 
-    onVisit(fnc){
-        if(Meteor.isServer) {
+    onVisit(fnc) {
+        if (Meteor.isServer) {
             var self = this, fncId = Spielebuch.StoredFunction.save(fnc, self.get('userId'));
             self.set('onVisit', fncId);
         }
     }
 
-    executeOnStart(){
-        if(Meteor.isClient) {
+    executeOnStart() {
+        if (Meteor.isClient) {
             var self = this, visited = self.get('visited');
             if (visited) {
                 Spielebuch.StoredFunction.execute(self.get('onVisit'));
             }
-            else{
+            else {
                 Spielebuch.StoredFunction.execute(self.get('onFirstVisit'));
                 self.set('visited', true);
             }
         }
     }
-};
+}
+;
 
 Spielebuch.Scene = Scene;
 Spielebuch.Scenes = new Mongo.Collection('scenes');

@@ -29,14 +29,5 @@ class Rule {
             Spielebuch.error(500, 'The type of a rule value must be a string or a number.')
         }
     }
-
-    /**
-     * Returns the properties as JSON
-     * @returns {{name: *, rules: Array}}
-     */
-    getJSON() {
-        var self = this;
-        return {key: self.key, value: self.value};
-    }
 }
 Spielebuch.Rule = Rule;

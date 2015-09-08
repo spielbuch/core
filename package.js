@@ -98,13 +98,6 @@ Package.onUse(function (api) {
      */
     api.addFiles('utilities/publications.js', 'server');
 
-    /**
-     * Observer
-     * Observes changes on text and refreshes view
-     */
-    api.addFiles('utilities/observer_client.js', 'client');
-
-
     if (api.export) {
         api.export('Spielebuch');
     }

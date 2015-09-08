@@ -18,11 +18,11 @@
  * along with spielebuch:core. If not, see <http://www.gnu.org/licenses/>.
  */
 
-class Story extends Base {
+class Story extends Spielebuch.Base {
     constructor() {
         super();
         var self = this;
-        if(self.created){
+        if (self.created) {
             self.onCreate();
         }
     }
@@ -93,6 +93,7 @@ class Story extends Base {
             scene.set('storyId', self._id);
             scene.set('userId', self.get('userId'));
             self.push('scenes', scene.get('_id'));
+            return self.get('scenes').length - 1;
         }
     }
 
@@ -100,39 +101,48 @@ class Story extends Base {
      * Starts a story with the first scene, if sceneInex is not set
      * @param sceneInex: if it is set, the scene with the index of sceneIndex in Story.scenes will be the starting scene
      */
-    start(sceneInex) {
-        var playingScene = false, self = this;
-        if (sceneInex) {
-            playingScene = self.get('scenes')[sceneInex];
+    start(sceneIndex) {
+        var playingSceneId = false, self = this;
+        if (sceneIndex) {
+            playingSceneId = self.get('scenes')[sceneIndex];
         } else {
-            playingScene = self.get('scenes')[0];
+            playingSceneId = self.get('scenes')[0];
         }
-        if (!playingScene) {
+        if (!playingSceneId) {
             Spielebuch.error('500', 'This scene does not exist.');
+        } else {
+            Spielebuch.log('This story (' + self._id + ') starts with scene: ' + playingSceneId + ').');
+            self.push('history', playingSceneId);
         }
-        Spielebuch.log('This story (' + self._id + ') starts with scene: ' + playingScene + ').');
-        self.push('history', playingScene);
     }
 
-    next(playingSceneIndex){
+    startScene(sceneId) {
+        var scene = new Spielebuch.Scene();
+        scene.load(sceneId);
+        scene.executeOnStart();
+    }
+
+    next(playingSceneIndex) {
         var self = this, sceneId;
         if (!playingSceneIndex) {
             Spielebuch.error('500', 'Forgot to define the index of the next scene');
         }
         sceneId = self.get('scenes')[playingSceneIndex];
-        if(sceneId) {                           //test if this scene exists
+        if (sceneId) {                           //test if this scene exists
             self.push('history', sceneId);      //if it exists it is pushed into the history. This will update the view via the observer.
-        }else{
-            Spielebuch.error('500', 'The scene with index '+playingSceneIndex+' does not exist.');
+            self.startScene(sceneId);
+        } else {
+            Spielebuch.error('500', 'The scene with index ' + playingSceneIndex + ' does not exist.');
         }
+
     }
 
     /**
      * The story jumps back to the last scene that was played before the current scene
      */
-    last(){
+    before() {
         var self = this, history = self.get('history'), sceneId;
-        if(history.length >=2) {                    //the history should contain at least two scenes to get the last.
+        if (history.length >= 2) {                    //the history should contain at least two scenes to get the last.
             sceneId = history[history.length - 2];  //this will give us the item before the last item.
             self.next(sceneId);                     //simply starting the scene by calling Story.next()
         }

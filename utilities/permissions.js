@@ -26,19 +26,12 @@ var ownStuff = {
     update: function(userId, doc){
         return doc.userId === userId || doc.userId === 'global';
     },
+    remove: function(userId, doc){
+        return doc.userId === userId || doc.userId === 'global';
+    },
     fetch: ['userId']
 };
 
 Spielebuch.Stories.allow(ownStuff);
 Spielebuch.Scenes.allow(ownStuff);
 Spielebuch.Gameobjects.allow(ownStuff);
-
-/**
- * There are some exceptions:
- * - text in Scenes: It is not escaped, so mallory should not be able to access it.
- */
-Spielebuch.Scenes.deny({
-    update: function (userId, docs, fields, modifier) {
-        return _.contains(fields, 'text');
-    }
-});

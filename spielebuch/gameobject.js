@@ -18,7 +18,7 @@
  * along with spielebuch:core. If not, see <http://www.gnu.org/licenses/>.
  */
 
-class Gameobject extends HasEffects {
+class Gameobject extends Spielebuch.HasEffects {
     constructor(objectname, referenceId, userId) {
         super();
         var self = this;
@@ -38,7 +38,7 @@ class Gameobject extends HasEffects {
     setEvent(name, fnc, icon){
         var self = this;
         if(Meteor.isServer){
-            var fncId = Spielebuch.StoredFunction.save(fnc, self.get('userId'));
+            var fncId = Spielebuch.StoredFunction.save(fnc, self.get('userId'), self.get('_id'));
             if(fncId){
                 self.push('events', {
                     name: name,
@@ -51,9 +51,28 @@ class Gameobject extends HasEffects {
         }
     }
 
+    /**
+     * Implements the addEffect method of Spielebuch.HasEffects
+     * @returns {*}
+     */
+    addEffect(effect){
+        return super.addEffect(effect);
+    }
+
     getEvents(){
         var self = this;
         return self.get('events');
+    }
+
+    destroy(){
+        var self = this;
+
+        var scene = new Spielebuch.Scene();
+        var res = scene.load(self.get('referenceId'));
+        if(res){
+            scene.removeGameobject(self.get('_id'))
+        }
+        Spielebuch.Gameobjects.remove(self.get('_id'));
     }
 
 
