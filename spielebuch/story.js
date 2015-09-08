@@ -80,7 +80,7 @@ class Story extends Base {
         }
     }
 
-    playingSceneId() {
+    currentSceneId() {
         if (Meteor.isClient) {
             var self = this;
             return self.last('history');
@@ -96,10 +96,14 @@ class Story extends Base {
         }
     }
 
-    start(sceneId) {
+    /**
+     * Starts a story with the first scene, if sceneInex is not set
+     * @param sceneInex: if it is set, the scene with the index of sceneIndex in Story.scenes will be the starting scene
+     */
+    start(sceneInex) {
         var playingScene = false, self = this;
-        if (sceneId) {
-            playingScene = self.get('scenes')[sceneId];
+        if (sceneInex) {
+            playingScene = self.get('scenes')[sceneInex];
         } else {
             playingScene = self.get('scenes')[0];
         }
@@ -110,13 +114,29 @@ class Story extends Base {
         self.push('history', playingScene);
     }
 
-    removeAllScenes() {
-        var self = this, scenes = self.scenes, storyId = self._id;
-        Spielebuch.log('Scenes of story (' + storyId + ') to clean up: ');
-        Meteor.call('deleteScenesOfStory', storyId);
-        //then we remove the scene from the object.
-        self.set('history', []);
-        self.set('scenes', []);
+    next(playingSceneIndex){
+        var self = this, sceneId;
+        if (!playingSceneIndex) {
+            Spielebuch.error('500', 'Forgot to define the index of the next scene');
+        }
+        sceneId = self.get('scenes')[playingSceneIndex];
+        if(sceneId) {                           //test if this scene exists
+            self.push('history', sceneId);      //if it exists it is pushed into the history. This will update the view via the observer.
+        }else{
+            Spielebuch.error('500', 'The scene with index '+playingSceneIndex+' does not exist.');
+        }
+    }
+
+    /**
+     * The story jumps back to the last scene that was played before the current scene
+     */
+    last(){
+        var self = this, history = self.get('history'), sceneId;
+        if(history.length >=2) {                    //the history should contain at least two scenes to get the last.
+            sceneId = history[history.length - 2];  //this will give us the item before the last item.
+            self.next(sceneId);                     //simply starting the scene by calling Story.next()
+        }
+
     }
 
 

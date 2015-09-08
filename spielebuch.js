@@ -44,7 +44,7 @@ if (Meteor.isClient) {
                         var storyId = Meteor.user().storyId;
                         if (!storyId) {
                             Spielebuch.error(500, 'There is no story set.');
-                            return
+                            return;
                         }
                         var story = Spielebuch.Stories.findOne(storyId);
                         if (!story) {
@@ -79,6 +79,7 @@ if (Meteor.isClient) {
             );
         }
     };
+
 
     /**
      * Please do not change this comment,

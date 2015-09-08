@@ -44,9 +44,17 @@ class Scene extends Base {
                 type: Array,
                 default: []
             },
-            'hooks': {
-                type: Object,
-                default: {}
+            onFirstVisit: {
+                type: String,
+                default: ''
+            },
+            onVisit: {
+                type: String,
+                default: ''
+            },
+            visited: {
+                type: Boolean,
+                default: false
             }
         };
     }
@@ -59,8 +67,6 @@ class Scene extends Base {
     onCreate() {
     }
 
-
-
     /**
      * Creates gameobjets from a text with markup.
      * Changes the markuped text, that the objectnames are replaced by the _ids of the created objects.
@@ -69,24 +75,47 @@ class Scene extends Base {
      * @returns {{gameobjects: Array, text: String}}
      */
     addText(text) {
-        var self = this, re = /[^[\]]+(?=])/, objects = re.exec(text), objectname, gameobject;
-
-        if(objects!==null){
-            objectname = objects[0];
-            gameobject = new Spielebuch.Gameobject(objectname, self._id, self.get('userId'));
-            text = text.replace(new RegExp('\\[' + objectname + '\\]', 'g'), '[' + gameobject.get('_id') + ']');
+        if(Meteor.isServer) {
+            var self = this, re = /[^[\]]+(?=])/, objects = re.exec(text), objectname, gameobject;
+            if (objects !== null) {
+                objectname = objects[0];
+                gameobject = new Spielebuch.Gameobject(objectname, self._id, self.get('userId'));
+                text = text.replace(new RegExp('\\[' + objectname + '\\]', 'g'), '[' + gameobject.get('_id') + ']');
+            }
+            self.push('text', text);
+            Spielebuch.log('Added text to scene ' + self._id + '.');
+            return gameobject;
         }
-        self.push('text', text);
-        Spielebuch.log('Added text to scene ' + self._id + '.');
-        return gameobject;
     }
 
-    removeGameobjects() {
-        var self = this;
-        Meteor.call('deleteGameobjectsOfReference', self._id);
+    onFirstVisit(fnc){
+        if(Meteor.isServer) {
+            var self = this, fncId = Spielebuch.StoredFunction.save(fnc, self.get('userId'));
+            self.set('onFirstVisit', fncId);
+        }
     }
-}
-;
+
+    onVisit(fnc){
+        if(Meteor.isServer) {
+            var self = this, fncId = Spielebuch.StoredFunction.save(fnc, self.get('userId'));
+            self.set('onVisit', fncId);
+        }
+    }
+
+    executeOnStart(){
+        if(Meteor.isClient) {
+            var self = this, visited = self.get('visited');
+            if (visited) {
+                Spielebuch.StoredFunction.execute(self.get('onVisit'));
+            }
+            else{
+                Spielebuch.StoredFunction.execute(self.get('onFirstVisit'));
+                self.set('visited', true);
+            }
+        }
+    }
+};
+
 Spielebuch.Scene = Scene;
 Spielebuch.Scenes = new Mongo.Collection('scenes');
 
