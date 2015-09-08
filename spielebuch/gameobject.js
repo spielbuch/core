@@ -1,3 +1,23 @@
+/**
+ * Created by Daniel Budick on 08 Sep 2015.
+ * Copyright 2015 Daniel Budick All rights reserved.
+ * Contact: daniel@budick.eu / http://budick.eu
+ *
+ * This file is part of spielebuch:core
+ * spielebuch:core is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * spielebuch:core is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with spielebuch:core. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 class Gameobject extends HasEffects {
     constructor(objectname, referenceId, userId) {
         super();
@@ -13,6 +33,27 @@ class Gameobject extends HasEffects {
         self.set('name', objectname);
         self.set('referenceId', referenceId);
         self.set('userId', userId);
+    }
+
+    setEvent(name, fnc, icon){
+        var self = this;
+        if(Meteor.isServer){
+            var fncId = Spielebuch.StoredFunction.save(fnc, self.get('userId'));
+            if(fncId){
+                self.push('events', {
+                    name: name,
+                    fncId: fncId,
+                    icon: icon
+                });
+            }
+        }else{
+            Spielebuch.error(500, 'The client is not allowed to set an event, for it would be madness!');
+        }
+    }
+
+    getEvents(){
+        var self = this;
+        return self.get('events');
     }
 
 
@@ -35,36 +76,11 @@ class Gameobject extends HasEffects {
                 default: []
             },
             'events': {
-                type: Object,
-                default: {}
-            },
-            'overrides': {
-                type: Object,
-                default: {}
+                type: Array,
+                default: []
             }
         };
     }
-
-    getEvents(){
-        var self = this;
-        //return _.keys(self.get('events'));
-        return [
-            //{name:'explore',icon:'fa-info'},
-            {name:'interact',icon:'fa-info'},
-            {name:'attack',icon:'fa-info'},
-            {name:'walk',icon:'fa-info'}
-        ];
-
-    }
-
-    setEvent(){
-        if(Meteor.isServer){
-
-        }else{
-            Spielebuch.error(500, 'The client is not allowed to set an event, for it would be madness!');
-        }
-    }
-
     getCollection(){
         return 'Gameobjects';
     }
