@@ -96,17 +96,49 @@ if (Meteor.isClient) {
         }
     };
 
-    Spielebuch.getPlayingSceneId =
+    Spielebuch.startUiCountdown = function (timeInMs, steps, cb) {
+        var time = timeInMs;
+        Session.set('criticalTiming', (time / timeInMs) * 100);
+        var killSwitch = Meteor.setInterval(function () {
+            time -= steps;
+            Session.set('criticalTiming', (time / timeInMs) * 100);
+            if (time < 0) {
+                Session.set('criticalTiming', 0);
+                Gamebook.stopCountdown(killSwitch);
+                return cb();
+            }
+        }, steps);
+        return killSwitch;
+    };
 
-    /**
-     * Please do not change this comment,
-     * and please do not change this line.
-     * If you change this line (I know you want to) make sure that the user of this package still has the copyright-notice, a link to the source, the license and me (email: spielebuch@budick.eu).
-     * Use this notice on a prominent place (e.g. footer) and add a link to the repository with the code you use, and we are good ;)
-     * - Daniel Budick-
-     */
-        Spielebuch.copyrightNotice = 'This application is based on <a href=\"https://github.com/spielebuch/core\" title=\"Spielebuch is a framework to create interactive books\">Spielebuch</a>.<br/>' +
-            'Copyright 2015 Daniel Budick, All rights reserved.' +
-            'Spielebuch is free software: you can redistribute it and/or modify it under the terms of the <a href=\"https://github.com/spielebuch/core/blob/master/LICENSE\">GNU Affero General Public License</a>.<br/>' +
-            'To get a commercial license, you can contact spielebuch@budick.eu';
+    Spielebuch.startSilentCountdown = function (timeInMs, steps, cb) {
+        var time = timeInMs,
+            killSwitch = Meteor.setInterval(function () {
+                time -= steps;
+                if (time < 0) {
+                    Gamebook.stopCountdown(killSwitch);
+                    return cb();
+                }
+            }, steps);
+        return killSwitch;
+    };
+
+    Spielebuch.stopCountdown = function (killSwitch) {
+        Meteor.clearInterval(killSwitch);
+        Meteor.setTimeout(function () {
+            Session.set('criticalTiming', 0);
+        }, 2000);
+    };
 }
+
+/**
+ * Please do not change this comment,
+ * and please do not change this line.
+ * If you change this line (I know you want to) make sure that the user of this package still has the copyright-notice, a link to the source, the license and me (email: spielebuch@budick.eu).
+ * Use this notice on a prominent place (e.g. footer) and add a link to the repository with the code you use, and we are good ;)
+ * - Daniel Budick-
+ */
+Spielebuch.copyrightNotice = 'This application is based on <a href=\"https://github.com/spielebuch/core\" title=\"Spielebuch is a framework to create interactive books\">Spielebuch</a>.<br/>' +
+    'Copyright 2015 Daniel Budick, All rights reserved.' +
+    'Spielebuch is free software: you can redistribute it and/or modify it under the terms of the <a href=\"https://github.com/spielebuch/core/blob/master/LICENSE\">GNU Affero General Public License</a>.<br/>' +
+    'To get a commercial license, you can contact spielebuch@budick.eu';
