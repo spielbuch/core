@@ -56,8 +56,8 @@ class Gameobject extends Spielebuch.HasEffects {
      * @returns {*}
      */
     addEffect(effect){
-        return super.addEffect(effect);
-    }
+    return super.addEffect(effect);
+}
 
     getEvents(){
         var self = this;
@@ -73,6 +73,18 @@ class Gameobject extends Spielebuch.HasEffects {
             scene.removeGameobject(self.get('_id'))
         }
         Spielebuch.Gameobjects.remove(self.get('_id'));
+    }
+
+    afterDestruction(fnc){
+        var self = this;
+        if(Meteor.isServer){
+            var fncId = Spielebuch.StoredFunction.save(fnc, self.get('userId'), self.get('_id'));
+            if(fncId){
+                self.set('afterDestruction', fncId);
+            }
+        }else{
+            Spielebuch.error(500, 'The client is not allowed to set an event, for it would be madness!');
+        }
     }
 
 
@@ -97,6 +109,10 @@ class Gameobject extends Spielebuch.HasEffects {
             'events': {
                 type: Array,
                 default: []
+            },
+            'afterDestruction': {
+                type: String,
+                default: ''
             }
         };
     }

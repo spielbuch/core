@@ -172,6 +172,5 @@ class HasEffectsClass extends Spielebuch.Base {
         });
         return result;
     }
-
 }
 Spielebuch.HasEffects = HasEffectsClass;

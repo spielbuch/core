@@ -36,7 +36,12 @@ if (Meteor.isServer) {
     /**
      * Variables in this object will be available in stored functions.
      */
-    Spielebuch.vars = {};
+    Spielebuch._vars_ = [];
+    Spielebuch.publish = function(varArray){
+        _.each(varArray, function(value, varname){
+            Spielebuch._vars_[varname] = value;
+        });
+    };
     Meteor.methods({
         createFncString: function (fncId, _id) {
             var doc = Spielebuch.StoredFunctions.findOne(fncId);
@@ -46,6 +51,7 @@ if (Meteor.isServer) {
                  * @type {string}
                  */
                 var eventVariable = 'var story = new Spielebuch.Story();story.load(Meteor.user().storyId);' +
+                    'var player = new Player(Meteor.userId());' +
                     'var _id = \'' + _id + '\';' +
                     'if(_id){' +
                     'var self = new Spielebuch.Gameobject();' +

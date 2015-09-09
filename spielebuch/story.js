@@ -77,6 +77,8 @@ class Story extends Spielebuch.Base {
             });
             Spielebuch.log('Scenedocs update worked: ' + !!update);
 
+            var player = new Player(userId);
+            return player;
         }
     }
 

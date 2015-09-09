@@ -36,6 +36,9 @@ Meteor.publish('userStory', function () {
         }),
         Spielebuch.StoredFunctions.find(userOrGlobal, {
             fields: {fncString: 1, userId: 1}
+        }),
+        Spielebuch.Players.find(userOrGlobal, {
+            fields: {afterDestruction: 1, userId: 1, effects: 1, name: 1}
         })
     ];
 });

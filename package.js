@@ -64,7 +64,7 @@ Package.onUse(function (api) {
 
     api.addFiles('spielebuch/rule.js', ['server', 'client']);
 
-    api.addFiles('spielebuch/player.js', 'client');
+    api.addFiles('spielebuch/player.js', ['server', 'client']);
     api.addFiles('spielebuch/helper.js', ['server', 'client']);
 
 

@@ -18,3 +18,68 @@
  * along with spielebuch:core. If not, see <http://www.gnu.org/licenses/>.
  */
 
+class Player extends Spielebuch.HasEffects {
+    constructor(userId){
+        super();
+        var self = this;
+        this.userId = userId;
+        var doc = Spielebuch.Players.findOne({userId:userId});
+
+    }
+
+    /**
+     * Creates an damage effect with the stats of the player.
+     */
+    attack(){
+
+    }
+
+    addEffect(effect){
+        return super.addEffect(effect);
+    }
+
+    destroy(){
+        var self = this;
+        Spielebuch.StoredFunction.execute(self.get('afterDestruction'), self.get('userId'), self.get('_id'));
+        Spielebuch.Gameobjects.remove(self.get('_id'));
+    }
+
+    afterDestruction(fnc){
+        var self = this;
+        if(Meteor.isServer){
+            var fncId = Spielebuch.StoredFunction.save(fnc, self.get('userId'), self.get('_id'));
+            if(fncId){
+                self.set('afterDestruction', fncId);
+            }
+        }else{
+            Spielebuch.error(500, 'The client is not allowed to set an event, for it would be madness!');
+        }
+    }
+
+
+    getFields(){
+        return {
+            'name': {
+                type: String,
+                default: 'Noname'
+            },
+            'userId': {
+                type: String,
+                default: ''
+            },
+            'effects': {
+                type: Array,
+                default: []
+            },
+            'afterDestruction': {
+                type: String,
+                default: ''
+            }
+        };
+    }
+    getCollection(){
+        return 'Players';
+    }
+}
+Spielebuch.Player = Player;
+Spielebuch.Players = new Mongo.Collection('players');
