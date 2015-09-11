@@ -36,18 +36,27 @@ if (Meteor.isClient) {
             Meteor.subscribe('userStory', {
                     onReady: function () {
                         Spielebuch.log('Subscription is ready.')
-                        if (!Meteor.user()) {
+                        if (!Meteor.userId()) {
                             //no user logged in. Ignore it silently.
                             return;
                         }
-                        var storyId = Meteor.user().storyId;
-                        if (!storyId) {
-                            Spielebuch.error(500, 'There is no story set.');
-                            return;
-                        }
-                        Spielebuch.log('Found story.');
-                        Session.set('storyId', Meteor.user().storyId);
 
+                        /**
+                         * Keep track of user's story
+                         */
+                        Tracker.autorun(function () {
+                            var story = new Spielebuch.Story();
+                            var loaded = story.load(Meteor.userId());
+                            if (!loaded) {
+                                Spielebuch.error(500, 'There is no story set.');
+                                return;
+                            }
+                            Spielebuch.log('Found story.');
+
+
+                            Session.set('storyId', story.get('_id'));
+                        });
+                        Spielebuch.log('Tracking story.');
 
                         /**
                          * Keep track of storyId and set the playing scene accordingly
@@ -67,7 +76,7 @@ if (Meteor.isClient) {
                             }
 
                         });
-                        Spielebuch.log('Tracking scene.')
+                        Spielebuch.log('Tracking scene.');
 
                         /**
                          * Keep track of the playingSceneId and change the text accordingly
@@ -82,7 +91,7 @@ if (Meteor.isClient) {
                                 Session.set('spielebuchReady', true);
                             }
                         });
-
+                        Spielebuch.log('Tracking text.');
 
                         Spielebuch.log('Spielebuch:core is ready.');
                         return cb();
@@ -129,6 +138,8 @@ if (Meteor.isClient) {
             Session.set('criticalTiming', 0);
         }, 2000);
     };
+
+    Spielebuch.global = {};
 }
 
 /**

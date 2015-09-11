@@ -85,10 +85,6 @@ Package.onUse(function (api) {
     api.addFiles('utilities/permissions.js', 'server');
 
     /**
-     * Manipulating user creation
-     */
-    api.addFiles('utilities/login.js', ['server', 'client']);
-    /**
      * Methods
      */
     api.addFiles('utilities/methods.js', 'server');

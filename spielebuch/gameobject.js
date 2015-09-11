@@ -20,9 +20,9 @@
 
 class Gameobject extends Spielebuch.HasEffects {
     constructor(objectname, referenceId, userId) {
-        super();
+        super(userId);
         var self = this;
-        if(self.created){
+        if (self.created) {
             self.onCreate(objectname, referenceId, userId);
         }
     }
@@ -35,18 +35,18 @@ class Gameobject extends Spielebuch.HasEffects {
         self.set('userId', userId);
     }
 
-    setEvent(name, fnc, icon){
+    setEvent(name, fnc, icon) {
         var self = this;
-        if(Meteor.isServer){
+        if (Meteor.isServer) {
             var fncId = Spielebuch.StoredFunction.save(fnc, self.get('userId'), self.get('_id'));
-            if(fncId){
+            if (fncId) {
                 self.push('events', {
                     name: name,
                     fncId: fncId,
                     icon: icon
                 });
             }
-        }else{
+        } else {
             Spielebuch.error(500, 'The client is not allowed to set an event, for it would be madness!');
         }
     }
@@ -55,40 +55,62 @@ class Gameobject extends Spielebuch.HasEffects {
      * Implements the addEffect method of Spielebuch.HasEffects
      * @returns {*}
      */
-    addEffect(effect){
-    return super.addEffect(effect);
-}
+    addEffect(effect) {
+        return super.addEffect(effect);
+    }
 
-    getEvents(){
+    getEvents() {
         var self = this;
         return self.get('events');
     }
 
-    destroy(){
+    /**
+     * Gameobjct is taken by a player or anything else. It is removed from the scene (if it is in one),
+     * then the referenceId is updated to the new owner of the object.
+     * @param referenceId: The _id of the entity (player, npc etc.) that took the item.
+     * Will be the new referenceId of the Gameobject
+     */
+    take() {
         var self = this;
+        self.removeFromScene();
+        self.set('referenceId', self.get('userId'));
+    }
 
-        var scene = new Spielebuch.Scene();
-        var res = scene.load(self.get('referenceId'));
-        if(res){
-            scene.removeGameobject(self.get('_id'))
-        }
+    /**
+     * Gameobject is removed from the scene (if it is in a scene) and then removed completely.
+     */
+    destroy() {
+        var self = this;
+        self.removeFromScene();
         Spielebuch.Gameobjects.remove(self.get('_id'));
     }
 
-    afterDestruction(fnc){
+    removeFromScene() {
         var self = this;
-        if(Meteor.isServer){
+        /**
+         * Trying to remove it from scene
+         */
+        var scene = new Spielebuch.Scene();
+        var res = scene.load(self.get('referenceId'));
+        if (res) {
+            scene.removeGameobject(self.get('_id'))
+        }
+    }
+
+    afterDestruction(fnc) {
+        var self = this;
+        if (Meteor.isServer) {
             var fncId = Spielebuch.StoredFunction.save(fnc, self.get('userId'), self.get('_id'));
-            if(fncId){
+            if (fncId) {
                 self.set('afterDestruction', fncId);
             }
-        }else{
+        } else {
             Spielebuch.error(500, 'The client is not allowed to set an event, for it would be madness!');
         }
     }
 
 
-    getFields(){
+    getFields(userId) {
         return {
             'name': {
                 type: String,
@@ -100,7 +122,7 @@ class Gameobject extends Spielebuch.HasEffects {
             },
             'userId': {
                 type: String,
-                default: 'global'
+                default: userId
             },
             'effects': {
                 type: Array,
@@ -116,7 +138,8 @@ class Gameobject extends Spielebuch.HasEffects {
             }
         };
     }
-    getCollection(){
+
+    getCollection() {
         return 'Gameobjects';
     }
 }

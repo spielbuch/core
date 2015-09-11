@@ -19,15 +19,20 @@
  */
 
 class Scene extends Spielebuch.Base {
-    constructor() {
-        super();
+    constructor(userId, storyId) {
+        super(userId);
         var self = this;
         if (self.created) {
-            self.onCreate();
+            self.onCreate(storyId);
         }
     }
 
-    getFields() {
+    onCreate(storyId) {
+        var self = this;
+        self.set('storyId',storyId);
+    }
+
+    getFields(userId) {
         return {
             'storyId': {
                 type: String,
@@ -35,7 +40,7 @@ class Scene extends Spielebuch.Base {
             },
             'userId': {
                 type: String,
-                default: 'global'
+                default: userId
             },
             'text': {
                 type: Array,
@@ -77,8 +82,7 @@ class Scene extends Spielebuch.Base {
     }
 
 
-    onCreate() {
-    }
+
 
     /**
      * Creates gameobjets from a text with markup.

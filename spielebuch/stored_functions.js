@@ -37,35 +37,41 @@ if (Meteor.isServer) {
      * Variables in this object will be available in stored functions.
      */
     Spielebuch._vars_ = [];
-    Spielebuch.publish = function(varArray){
-        _.each(varArray, function(value, varname){
+    Spielebuch.publish = function (varArray) {
+        _.each(varArray, function (value, varname) {
             Spielebuch._vars_[varname] = value;
         });
     };
     Meteor.methods({
         createFncString: function (fncId, _id) {
-            var doc = Spielebuch.StoredFunctions.findOne(fncId);
+            var doc = Spielebuch.StoredFunctions.findOne(fncId), selfString;
             if (doc && doc.fncString) {
+
                 /**
-                 * The player needs access to the story, the current scene and the activated gameobject.
+                 * The user can access a lot of variables in stored functions:
+                 */
+
+                /**
+                 * If the object is a gameobject, the user can access it by calling self
+                 */
+                if (Meteor.call('isGameobject', _id)) {
+                    selfString = 'var self = new Spielebuch.Gameobject();' +
+                        'self.load(\'' + _id + '\');'
+                }
+                /**
+                 * The user has access to the story, the player and the playing scene
                  * @type {string}
                  */
-                var eventVariable = 'var story = new Spielebuch.Story();story.load(Meteor.user().storyId);' +
-                    'var player = new Player(Meteor.userId());' +
-                    'var _id = \'' + _id + '\';' +
-                    'if(_id){' +
-                    'var self = new Spielebuch.Gameobject();' +
-                    'var res = self.load(_id);' +
-                    'if(!res){' +
-                    'self = new Spielebuch.Scene();' +
-                    'self.load(_id);' +
-                    '}else{' +
+                var eventVariable = 'var story = new Spielebuch.Story();story.load(Meteor.userId());' +
+                    'var player = new Spielebuch.Player(Meteor.userId());' +
                     'var scene = new Spielebuch.Scene();' +
                     'scene.load(Session.get(\'playingSceneId\'));' +
-                    '}' +
-                    '}';
+                    selfString;
 
 
+                /**
+                 * The use has access to variables that where published by Spielebuch.publish()
+                 */
                 _.each(Spielebuch.vars, function (value, varname) {
                     if (typeof value === 'boolean' || typeof value === 'number') {
                         eventVariable += 'var ' + varname + '=' + value + ';';
@@ -142,8 +148,8 @@ if (Meteor.isServer) {
 if (Meteor.isClient) {
     Spielebuch.StoredFunction.execute = function (fncId, _id) {
         Meteor.call('createFncString', fncId, _id, function (err, fncString) {
-            if(err){
-                Spielebuch.error(500,err);
+            if (err) {
+                Spielebuch.error(500, err);
             }
             var fnc = new Function(fncString);
             (fnc());

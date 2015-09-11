@@ -24,10 +24,10 @@
  */
 var ownStuff = {
     update: function(userId, doc){
-        return doc.userId === userId || doc.userId === 'global';
+        return doc.userId === userId;
     },
     remove: function(userId, doc){
-        return doc.userId === userId || doc.userId === 'global';
+        return doc.userId === userId;
     },
     fetch: ['userId']
 };

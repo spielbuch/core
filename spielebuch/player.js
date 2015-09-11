@@ -20,23 +20,41 @@
 
 class Player extends Spielebuch.HasEffects {
     constructor(userId){
-        super();
+        super(userId);
         var self = this;
-        this.userId = userId;
-        var doc = Spielebuch.Players.findOne({userId:userId});
+        if(self.created){
+            self.onCreate();
+        }else{
+            var doc = Spielebuch.Players.findOne({userId:userId});
+            self._id = doc._id;
+        }
+    }
+
+
+
+    onCreate(){
 
     }
 
     /**
      * Creates an damage effect with the stats of the player.
      */
-    attack(){
-
+    attack(method,target,name){
+        if(!name){
+            name = 'Damage';
+        }
+        return new Spielebuch.Effect(name,[new Spielebuch.Rule('Damage','-200')]);
     }
 
     addEffect(effect){
         return super.addEffect(effect);
     }
+
+    getBackpackList(){
+        var self = this;
+        return Spielebuch.Gameobject.find({referenceId: self.get('userId')});
+    }
+
 
     destroy(){
         var self = this;
@@ -57,7 +75,7 @@ class Player extends Spielebuch.HasEffects {
     }
 
 
-    getFields(){
+    getFields(userId){
         return {
             'name': {
                 type: String,
@@ -65,7 +83,7 @@ class Player extends Spielebuch.HasEffects {
             },
             'userId': {
                 type: String,
-                default: ''
+                default: userId
             },
             'effects': {
                 type: Array,
@@ -74,9 +92,14 @@ class Player extends Spielebuch.HasEffects {
             'afterDestruction': {
                 type: String,
                 default: ''
+            },
+            backpack: {
+                type: Array,
+                default: []
             }
         };
     }
+
     getCollection(){
         return 'Players';
     }

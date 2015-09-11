@@ -35,52 +35,43 @@ Meteor.methods({
     deleteStoryOfUser: function () {
         if (this.userId === null) {
             Spielebuch.error('403', 'User is not logged in.');
+            return false;
         }
         Spielebuch.log('Deleting stories of user: ' + this.userId);
-        Spielebuch.Stories.find({
-            'userId': this.userId
-        }).map(function (story) {
-            Meteor.call('deleteScenesOfStory', story._id);
-            Spielebuch.Stories.remove(story._id);
-        });
-    },
-    deleteScenesOfStory: function (storyId) {
-        var error, result;
-        if (this.userId === null) {
-            Spielebuch.error('403', 'User is not logged in.');
-        }
-        Spielebuch.Scenes.find({
-            'userId': this.userId
-        }).map(function (scene) {
-            Meteor.call('deleteGameobjectsOfReference', scene._id);
-            result = Spielebuch.Scenes.remove(scene._id);
-            if(!result){
-                error = true;
-            }
-        });
-        result = Spielebuch.Stories.update(storyId, {
-            $set: {
-                scenes: [],
-                history: []
-            }
-        });
-        result = result && !error
-        Spielebuch.log('All scenes removed: ' + result);
-    },
-    deleteGameobjectsOfReference: function (referenceId) {
-        if (this.userId === null) {
-            Spielebuch.error('403', 'User is not logged in.');
-        }
-        Spielebuch.log('Removing objects of reference (user or scene): ' + referenceId);
 
-        /**
-         * Deletes the stored functions of an object
-         */
-        Spielebuch.Gameobjects.find({referenceId: referenceId}).forEach(function(doc){
-            _.each(doc.events, function(event){
-                Spielebuch.StoredFunctions.remove(event.fncId);
-            });
-            Spielebuch.Gameobjects.remove(doc._id);
+        Spielebuch.Stories.remove({
+            'userId': this.userId
+        });
+        Spielebuch.Scenes.remove({
+            'userId': this.userId
+        });
+        Spielebuch.Gameobjects.remove({
+            'userId': this.userId
+        });
+        Spielebuch.StoredFunctions.remove({
+            'userId': this.userId
+        });
+        Spielebuch.Players.remove({
+            'userId': this.userId
+        });
+
+        return true;
+    },
+    addEffect: function(collection, _id, effect){
+        var update = {};
+        update['effects'] = effect;
+
+        //todo: Add some tests to prevent cheating.
+        Spielebuch[collection].update(_id, {
+            $push: update
         });
     },
+    isGameobject: function(_id){
+        var cursor = Spielebuch.Gameobjects.find({_id: _id}, {_id: 1, limit: 1});
+        if (cursor.count() === 0) {
+            return false;
+        }
+        return true;
+    }
+
 });

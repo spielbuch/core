@@ -19,19 +19,43 @@
  */
 
 class Story extends Spielebuch.Base {
-    constructor() {
-        super();
+    constructor(userId) {
+        super(userId);
         var self = this;
         if (self.created) {
             self.onCreate();
+        }else {
+            self.load(userId);
         }
     }
 
-    getFields() {
+    onCreate() {
+
+    }
+
+
+
+    /**
+     * Overwrites Base load to set _id by fetching the story by the userId
+     * @param userId
+     * @returns {boolean}: Feedback if Id was set.
+     */
+    load(userId){
+        var self = this;
+        var cursor = Spielebuch[self.getCollection()].find({userId: userId}, {_id: 1, userId: 1, limit: 1});
+        if (cursor.count() === 0) {
+            Spielebuch.error(404, 'Story for  user ' + userId + ' was not found in ' + self.getCollection() + '.');
+            return false;
+        }
+        self._id = cursor.fetch()[0]._id;
+        return true;
+    }
+
+    getFields(userId) {
         return {
             'userId': {
                 type: String,
-                default: 'global'
+                default: userId
             },
             'scenes': {
                 type: Array,
@@ -48,36 +72,15 @@ class Story extends Spielebuch.Base {
         return 'Stories';
     }
 
-    onCreate() {
-
-    }
-
-
-    addPlayer(userId) {
+    createPlayer() {
         var self = this;
         if (Meteor.isClient) {
             Spielebuch.error(403, 'You cannot add a user to a story from the client.');
         }
         if (Meteor.isServer) {
-            self.set('userId', userId);
-            var update = Meteor.users.update(userId, {
-                $set: {
-                    storyId: self._id
-                }
-            });
-            Spielebuch.log('Userdoc update worked: ' + !!update);
-
-            update = Spielebuch.Scenes.update({storyId: self._id}, {
-                $set: {userId: userId}
-            });
-            Spielebuch.Scenes.find({storyId: self._id}).forEach(function (doc) {
-                Spielebuch.Gameobjects.update({referenceId: doc._id}, {
-                    $set: {userId: userId}
-                })
-            });
-            Spielebuch.log('Scenedocs update worked: ' + !!update);
-
-            var player = new Player(userId);
+            var userId = self.get('userId');
+            Spielebuch.log('Creating player for user ' + userId + '.');
+            var player = new Spielebuch.Player(userId);
             return player;
         }
     }
@@ -89,13 +92,12 @@ class Story extends Spielebuch.Base {
         }
     }
 
-    addScene(scene) {
+    addScene() {
         if (Meteor.isServer) {
-            var self = this;
-            scene.set('storyId', self._id);
-            scene.set('userId', self.get('userId'));
+            var self = this, scene = new Spielebuch.Scene(self.get('userId'),self.get('_id'));
             self.push('scenes', scene.get('_id'));
-            return self.get('scenes').length - 1;
+            scene.index = self.get('scenes').length - 1;
+            return scene;
         }
     }
 

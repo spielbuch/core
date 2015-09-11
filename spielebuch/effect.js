@@ -107,13 +107,16 @@ Spielebuch.Effect = Effect;
 
 
 class HasEffectsClass extends Spielebuch.Base {
-    constructor() {
-        super();
+    constructor(userId) {
+        super(userId);
     }
 
     addEffect(effect) {
         var self = this;
-        self.push('effects', effect.getJSON());
+        /**
+         * We use a serverside method to add effects to run some test to prevent cheating.
+         */
+        Meteor.call('addEffect', self.getCollection(), self.get('_id'), effect.getJSON());
     }
 
     getObjectEffect() {

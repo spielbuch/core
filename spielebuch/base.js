@@ -25,12 +25,26 @@ class BaseClass {
      * If we call new Object from the client, we always want to load the object, because the client cannot insert new objects.
      * @returns {boolean} Returns true when onCreate should be called in the subclass.
      */
-    constructor() {
+    constructor(userId) {
         var self = this;
+        /**
+         * Check if userId is set on the server. On the client it is set automatically when user is loggedin
+         */
+        if(!userId && Meteor.isClient){
+            if(Meteor.userId()){
+                userId = Meteor.userId();
+            }else{
+                Spielebuch.error(403, 'You cannot create an object in ' + self.getCollection() + ' without beeing loggedin.');
+            }
+        }else if(!userId && Meteor.isServer){
+            Spielebuch.error(500, 'You cannot create an object in ' + self.getCollection() + ' without supplying an userId.');
+        }
+
+
         if (Meteor.isServer) {
-            self._id = self.setDefault();
+            self._id = self.setDefault(userId);
             Spielebuch.log('New Object in ' + self.getCollection() + ' was created. The _id is ' + self._id + '.');
-            self.created = true;
+            self.created = true; //this decides if the child-object calls its onCreate-Method
         }else{
             self.created = false;
         }
@@ -65,9 +79,9 @@ class BaseClass {
     /**
      * Sets default values for the values of this object.
      */
-    setDefault() {
+    setDefault(userId) {
         var self = this, insert = {};
-        _.forEach(self.getFields(), function (field, key) {
+        _.forEach(self.getFields(userId), function (field, key) {
             if (field.default) {
                 insert[key] = field.default;
             }
