@@ -30,7 +30,27 @@ class Story extends Spielebuch.Base {
     }
 
     onCreate() {
+    }
 
+    /**
+     * This event is added to each gameobject in this story
+     */
+    addDefaultEvent(name, fnc, icon){
+        var self = this;
+        if (Meteor.isClient) {
+            Spielebuch.error(403, 'You cannot add a defaultEvent to a story from the client.');
+        }
+        if(Meteor.isServer){
+            var fncId = Spielebuch.StoredFunction.save(fnc, self.get('userId'));
+            if (fncId) {
+                self.push('defaultEvents', {
+                    name: name,
+                    fncId: fncId,
+                    icon: icon
+                });
+            }
+
+        }
     }
 
 
@@ -62,6 +82,10 @@ class Story extends Spielebuch.Base {
                 default: []
             },
             'history': {
+                type: Array,
+                default: []
+            },
+            'defaultEvents': {
                 type: Array,
                 default: []
             }

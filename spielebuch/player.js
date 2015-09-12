@@ -26,7 +26,9 @@ class Player extends Spielebuch.HasEffects {
             self.onCreate();
         }else{
             var doc = Spielebuch.Players.findOne({userId:userId});
-            self._id = doc._id;
+            if(doc){
+                self._id = doc._id;
+            }
         }
     }
 
@@ -40,10 +42,14 @@ class Player extends Spielebuch.HasEffects {
      * Creates an damage effect with the stats of the player.
      */
     attack(method,target,name){
+        var self = this;
+
+        self.getValueByName(method);
+
         if(!name){
             name = 'Damage';
         }
-        return new Spielebuch.Effect(name,[new Spielebuch.Rule('Damage','-200')]);
+        return new Spielebuch.Effect(name,[new Spielebuch.Rule(target,'-20')]);
     }
 
     addEffect(effect){

@@ -62,9 +62,9 @@ if (Meteor.isServer) {
                  * The user has access to the story, the player and the playing scene
                  * @type {string}
                  */
-                var eventVariable = 'var story = new Spielebuch.Story();story.load(Meteor.userId());' +
+                var eventVariable = 'var story = new Spielebuch.Story(Meteor.userId());story.load(Meteor.userId());' +
                     'var player = new Spielebuch.Player(Meteor.userId());' +
-                    'var scene = new Spielebuch.Scene();' +
+                    'var scene = new Spielebuch.Scene(Meteor.userId());' +
                     'scene.load(Session.get(\'playingSceneId\'));' +
                     selfString;
 

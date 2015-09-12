@@ -33,12 +33,24 @@ class Gameobject extends Spielebuch.HasEffects {
         self.set('name', objectname);
         self.set('referenceId', referenceId);
         self.set('userId', userId);
+
+        /**
+         * Set default events
+         */
+        var defaultEvents = Spielebuch.getDefaultEvents(userId);
+        if(defaultEvents) {
+            _.each(defaultEvents, function (event) {
+                if (event) {
+                    self.push('events', event);
+                }
+            });
+        }
     }
 
     setEvent(name, fnc, icon) {
         var self = this;
         if (Meteor.isServer) {
-            var fncId = Spielebuch.StoredFunction.save(fnc, self.get('userId'), self.get('_id'));
+            var fncId = Spielebuch.StoredFunction.save(fnc, self.get('userId'));
             if (fncId) {
                 self.push('events', {
                     name: name,

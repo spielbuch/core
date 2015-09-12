@@ -120,8 +120,13 @@ class HasEffectsClass extends Spielebuch.Base {
     }
 
     getObjectEffect() {
-        var self = this, objectEffect = new Effect(self.name + 'Effect', self.getRules());
+        var self = this, objectEffect = new Effect(self.get('name') + 'Effect', self.getRules());
         return objectEffect;
+    }
+
+    getValueByName(name){
+        var self = this, properties = self.getProperties();
+        console.log(properties);
     }
 
     /**

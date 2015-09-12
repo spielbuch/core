@@ -19,16 +19,6 @@
  */
 
 Meteor.methods({
-    getUsersStoryId: function () {
-        if (this.userId === null) {
-            Spielebuch.error('403', 'User is not logged in.');
-        }
-        var user = Meteor.users.findOne(this.userId);
-        Spielebuch.log('Fetching user\'s (' + this.userId + ') storyId (' + user.storyId + ').');
-        return user.storyId;
-    },
-
-
     /**
      * These methods are used to delete stuff.
      */
@@ -73,5 +63,18 @@ Meteor.methods({
         }
         return true;
     }
-
 });
+
+Spielebuch.getDefaultEvents = function(userId){
+    if (!userId) {
+        return false;
+    }
+    var doc = Spielebuch.Stories.findOne({userId: userId});
+    if(!doc){
+        return false;
+    }
+    if(!doc.defaultEvents){
+        return false;
+    }
+    return doc.defaultEvents;
+}
