@@ -63,17 +63,17 @@ class Gameobject extends Spielebuch.HasEffects {
         }
     }
 
+    getEvents() {
+        var self = this;
+        return self.get('events');
+    }
+
     /**
      * Implements the addEffect method of Spielebuch.HasEffects
      * @returns {*}
      */
     addEffect(effect) {
         return super.addEffect(effect);
-    }
-
-    getEvents() {
-        var self = this;
-        return self.get('events');
     }
 
     /**
@@ -94,7 +94,12 @@ class Gameobject extends Spielebuch.HasEffects {
     destroy() {
         var self = this;
         self.removeFromScene();
-        Spielebuch.Gameobjects.remove(self.get('_id'));
+        super.destroy();
+    }
+
+    afterDestruction(fnc){
+        var self = this, fncId = super.afterDestruction(fnc);
+        self.set('afterDestruction', fncId);
     }
 
     removeFromScene() {
@@ -106,18 +111,6 @@ class Gameobject extends Spielebuch.HasEffects {
         var res = scene.load(self.get('referenceId'));
         if (res) {
             scene.removeGameobject(self.get('_id'))
-        }
-    }
-
-    afterDestruction(fnc) {
-        var self = this;
-        if (Meteor.isServer) {
-            var fncId = Spielebuch.StoredFunction.save(fnc, self.get('userId'), self.get('_id'));
-            if (fncId) {
-                self.set('afterDestruction', fncId);
-            }
-        } else {
-            Spielebuch.error(500, 'The client is not allowed to set an event, for it would be madness!');
         }
     }
 

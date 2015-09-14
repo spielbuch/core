@@ -21,6 +21,10 @@
 Spielebuch = {
     Settings: {
         debug: true
+    },
+    Gameplay: {
+        hitpoints: 'Hitpoints',
+        damage: 'Damage'
     }
 };
 
@@ -113,7 +117,7 @@ if (Meteor.isClient) {
             Session.set('criticalTiming', (time / timeInMs) * 100);
             if (time < 0) {
                 Session.set('criticalTiming', 0);
-                Gamebook.stopCountdown(killSwitch);
+                Spielebuch.stopCountdown(killSwitch);
                 return cb();
             }
         }, steps);
@@ -125,7 +129,7 @@ if (Meteor.isClient) {
             killSwitch = Meteor.setInterval(function () {
                 time -= steps;
                 if (time < 0) {
-                    Gamebook.stopCountdown(killSwitch);
+                    Spielebuch.stopCountdown(killSwitch);
                     return cb();
                 }
             }, steps);

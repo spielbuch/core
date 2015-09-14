@@ -19,69 +19,52 @@
  */
 
 class Player extends Spielebuch.HasEffects {
-    constructor(userId){
+    constructor(userId) {
         super(userId);
         var self = this;
-        if(self.created){
+        if (self.created) {
             self.onCreate();
-        }else{
-            var doc = Spielebuch.Players.findOne({userId:userId});
-            if(doc){
+        } else {
+            var doc = Spielebuch.Players.findOne({userId: userId});
+            if (doc) {
                 self._id = doc._id;
             }
         }
     }
 
 
-
-    onCreate(){
+    onCreate() {
 
     }
 
     /**
      * Creates an damage effect with the stats of the player.
      */
-    attack(method,target,name){
+    attack(method, target, name) {
         var self = this;
-
-        self.getValueByName(method);
-
-        if(!name){
-            name = 'Damage';
+        if (!name) {
+            name = Spielebuch.Gameplay.damage;
         }
-        return new Spielebuch.Effect(name,[new Spielebuch.Rule(target,'-20')]);
+        target.addEffect(new Spielebuch.Effect(name, [new Spielebuch.Rule(Spielebuch.Gameplay.hitpoints, '-' + self.getValueByName(method))]));
     }
 
-    addEffect(effect){
+    addEffect(effect) {
         return super.addEffect(effect);
     }
 
-    getBackpackList(){
+    getBackpackList() {
         var self = this;
         return Spielebuch.Gameobject.find({referenceId: self.get('userId')});
     }
 
 
-    destroy(){
-        var self = this;
-        Spielebuch.StoredFunction.execute(self.get('afterDestruction'), self.get('userId'), self.get('_id'));
-        Spielebuch.Gameobjects.remove(self.get('_id'));
-    }
-
     afterDestruction(fnc){
-        var self = this;
-        if(Meteor.isServer){
-            var fncId = Spielebuch.StoredFunction.save(fnc, self.get('userId'), self.get('_id'));
-            if(fncId){
-                self.set('afterDestruction', fncId);
-            }
-        }else{
-            Spielebuch.error(500, 'The client is not allowed to set an event, for it would be madness!');
-        }
+        var self = this, fncId = super.afterDestruction(fnc);
+        self.set('afterDestruction', fncId);
     }
 
 
-    getFields(userId){
+    getFields(userId) {
         return {
             'name': {
                 type: String,
@@ -106,7 +89,7 @@ class Player extends Spielebuch.HasEffects {
         };
     }
 
-    getCollection(){
+    getCollection() {
         return 'Players';
     }
 }

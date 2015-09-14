@@ -53,9 +53,9 @@ class Effect {
         }
     }
 
-    getRules(){
+    getRules() {
         var self = this, result = [];
-        _.each(self.rules, function(rule){
+        _.each(self.rules, function (rule) {
             result.push(new Spielebuch.Rule(rule.key, rule.value));
         });
         return result;
@@ -65,7 +65,7 @@ class Effect {
      * Returns effective stats as an object {propertyname: propertyvalue}, by calculating the rules
      * @returns {{}}
      */
-    getProperties(){
+    getProperties() {
         var self = this, stats = {};
         _.each(self.rules, function (rule) {
             /**
@@ -91,13 +91,14 @@ class Effect {
         });
         return stats;
     }
+
     /**
      * Returns the effective rules of an effect, by translating getProperties into an array of rules.
      * @returns [Rule]
      */
     getPropertiesArray() {
         var self = this, result = [];
-        _.each(self.getProperties(), function(value, key){
+        _.each(self.getProperties(), function (value, key) {
             result.push(new Spielebuch.Rule(key, value));
         })
         return result;
@@ -116,7 +117,19 @@ class HasEffectsClass extends Spielebuch.Base {
         /**
          * We use a serverside method to add effects to run some test to prevent cheating.
          */
-        Meteor.call('addEffect', self.getCollection(), self.get('_id'), effect.getJSON());
+        if (Meteor.isServer) {
+            Meteor.call('addEffect', self.getCollection(), self.get('_id'), effect.getJSON())
+            if (self.getValueByName(Spielebuch.Gameplay.hitpoints) <= 0) {
+                self.destroy();
+            }
+        }
+        if (Meteor.isClient) {
+            Meteor.call('addEffect', self.getCollection(), self.get('_id'), effect.getJSON(), function (err) {
+                if (self.getValueByName(Spielebuch.Gameplay.hitpoints) <= 0) {
+                    self.destroy();
+                }
+            });
+        }
     }
 
     getObjectEffect() {
@@ -124,9 +137,12 @@ class HasEffectsClass extends Spielebuch.Base {
         return objectEffect;
     }
 
-    getValueByName(name){
+    getValueByName(name) {
         var self = this, properties = self.getProperties();
-        console.log(properties);
+        if (!properties[name]) {
+            return 0;
+        }
+        return properties[name];
     }
 
     /**
@@ -143,7 +159,7 @@ class HasEffectsClass extends Spielebuch.Base {
      *
      * @returns {Array}
      */
-    getPropertiesArray(){
+    getPropertiesArray() {
         var self = this, objectEffect = self.getObjectEffect();
         return objectEffect.getPropertiesArray();
     }
@@ -162,10 +178,9 @@ class HasEffectsClass extends Spielebuch.Base {
     }
 
 
-
-    getEffectNames(){
+    getEffectNames() {
         var self = this;
-        return _.pluck(self.get('effects'),'name');
+        return _.pluck(self.get('effects'), 'name');
     }
 
 
@@ -180,5 +195,26 @@ class HasEffectsClass extends Spielebuch.Base {
         });
         return result;
     }
+
+    destroy() {
+        var self = this;
+        Spielebuch.StoredFunction.execute(self.get('afterDestruction'), self.get('userId'), self.get('_id'));
+        Spielebuch.Gameobjects.remove(self.get('_id'));
+    }
+
+    afterDestruction(fnc) {
+        var self = this;
+        if (Meteor.isServer) {
+            var fncId = Spielebuch.StoredFunction.save(fnc, self.get('userId'), self.get('_id'));
+            if (fncId) {
+                return fncId;
+            } else {
+                Spielebuch.error(500, 'Could not store afterDestruction event for ' + self.get('_id') + '!');
+            }
+        } else {
+            Spielebuch.error(500, 'The client is not allowed to set an event, for it would be madness!');
+        }
+    }
+
 }
 Spielebuch.HasEffects = HasEffectsClass;

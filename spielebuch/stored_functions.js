@@ -36,15 +36,13 @@ if (Meteor.isServer) {
     /**
      * Variables in this object will be available in stored functions.
      */
-    Spielebuch._vars_ = [];
-    Spielebuch.publish = function (varArray) {
-        _.each(varArray, function (value, varname) {
-            Spielebuch._vars_[varname] = value;
-        });
+    Spielebuch.eventVariables = {};
+    Spielebuch.publish = function (key, value) {
+        Spielebuch.eventVariables[key] = value;
     };
     Meteor.methods({
         createFncString: function (fncId, _id) {
-            var doc = Spielebuch.StoredFunctions.findOne(fncId), selfString;
+            var doc = Spielebuch.StoredFunctions.findOne(fncId), selfString = '';
             if (doc && doc.fncString) {
 
                 /**
@@ -72,7 +70,7 @@ if (Meteor.isServer) {
                 /**
                  * The use has access to variables that where published by Spielebuch.publish()
                  */
-                _.each(Spielebuch.vars, function (value, varname) {
+                _.each(Spielebuch.eventVariables, function (value, varname) {
                     if (typeof value === 'boolean' || typeof value === 'number') {
                         eventVariable += 'var ' + varname + '=' + value + ';';
                     }
@@ -128,6 +126,7 @@ if (Meteor.isServer) {
             Spielebuch.error(500, 'This is not a function, it cannot be stored');
         }
         var functionString = fnc.toString().match(/function[^{]+\{([\s\S]*)\}$/)[1];
+        functionString = functionString.replace(/(\r\n|\n|\r)/gm,"");
 
         var _id = Spielebuch.StoredFunctions.insert({
             userId: userId,

@@ -55,6 +55,7 @@ Meteor.methods({
         Spielebuch[collection].update(_id, {
             $push: update
         });
+
     },
     isGameobject: function(_id){
         var cursor = Spielebuch.Gameobjects.find({_id: _id}, {_id: 1, limit: 1});

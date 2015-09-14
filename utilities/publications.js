@@ -32,13 +32,13 @@ Meteor.publish('userStory', function () {
             fields: {effects: 1, hooks: 1, storyId: 1, text: 1, userId: 1}
         }),
         Spielebuch.Gameobjects.find(userOrGlobal, {
-            fields: {effects: 1, events: 1, name: 1, overrides: 1, userId: 1, referenceId: 1}
+            fields: {effects: 1, events: 1, name: 1, overrides: 1, userId: 1, referenceId: 1,afterDestruction: 1}
         }),
         Spielebuch.StoredFunctions.find(userOrGlobal, {
             fields: {fncString: 1, userId: 1}
         }),
         Spielebuch.Players.find(userOrGlobal, {
-            fields: {afterDestruction: 1, userId: 1, effects: 1, name: 1}
+            fields: {afterDestruction: 1, userId: 1, effects: 1, name: 1,backpack: 1}
         })
     ];
 });
