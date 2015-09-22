@@ -94,6 +94,7 @@ class Gameobject extends Spielebuch.HasEffects {
     destroy() {
         var self = this;
         self.removeFromScene();
+        Spielebuch.print('destroyedObject',self.get('name'));
         super.destroy();
     }
 

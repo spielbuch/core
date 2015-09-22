@@ -25,7 +25,7 @@ class BaseClass {
      * If we call new Object from the client, we always want to load the object, because the client cannot insert new objects.
      * @returns {boolean} Returns true when onCreate should be called in the subclass.
      */
-    constructor(userId) {
+    constructor(userId, load) {
         var self = this;
         /**
          * Check if userId is set on the server. On the client it is set automatically when user is loggedin
@@ -41,7 +41,7 @@ class BaseClass {
         }
 
 
-        if (Meteor.isServer) {
+        if (Meteor.isServer && !load) {
             self._id = self.setDefault(userId);
             Spielebuch.log('New Object in ' + self.getCollection() + ' was created. The _id is ' + self._id + '.');
             self.created = true; //this decides if the child-object calls its onCreate-Method
@@ -56,9 +56,7 @@ class BaseClass {
 
     getCollection() {
         Spielebuch.log('There is no collection defined for ' + self.constructor.name + '.');
-    }
-
-;
+    };
 
     load(_id) {
         var self = this;

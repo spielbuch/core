@@ -20,12 +20,17 @@
 
 Spielebuch = {
     Settings: {
-        debug: true
+        debug: true,
+        language: 'en'
     },
     Gameplay: {
         hitpoints: 'Hitpoints',
         damage: 'Damage'
-    }
+    },
+    /**
+     * If the author is in need of a global variable, he can dump it in here.
+     */
+    globals: {}
 };
 
 /**
@@ -86,14 +91,19 @@ if (Meteor.isClient) {
                          * Keep track of the playingSceneId and change the text accordingly
                          */
                         Tracker.autorun(function () {
-                            var playingScene = Spielebuch.Scenes.findOne(Session.get('playingSceneId'));
-                            if (!playingScene) {
-                                Spielebuch.error(404, 'The scene ' + Session.get('playingSceneId') + ' was not found in the database.');
-                            } else {
-                                Session.set('spielebuchText', playingScene.text);
-                                Spielebuch.log('Text of scene was set.');
-                                Session.set('spielebuchReady', true);
+                            if (!Meteor.userId()) {
+                                return;
                             }
+                            if (!Session.get('playingSceneId')) {
+                                Spielebuch.error(404, 'The scene ' + Session.get('playingSceneId') + ' was not found in the database.');
+                            }
+                            var playingScene = new Spielebuch.Scene(Meteor.userId(), Session.get('storyId'), false);
+                            playingScene.load(Session.get('playingSceneId'));
+
+                            Session.set('spielebuchText', playingScene.getText());
+                            Spielebuch.log('Text of scene was set.');
+                            Session.set('spielebuchReady', true);
+
                         });
                         Spielebuch.log('Tracking text.');
 
@@ -109,41 +119,7 @@ if (Meteor.isClient) {
         }
     };
 
-    Spielebuch.startUiCountdown = function (timeInMs, steps, cb) {
-        var time = timeInMs;
-        Session.set('criticalTiming', (time / timeInMs) * 100);
-        var killSwitch = Meteor.setInterval(function () {
-            time -= steps;
-            Session.set('criticalTiming', (time / timeInMs) * 100);
-            if (time < 0) {
-                Session.set('criticalTiming', 0);
-                Spielebuch.stopCountdown(killSwitch);
-                return cb();
-            }
-        }, steps);
-        return killSwitch;
-    };
 
-    Spielebuch.startSilentCountdown = function (timeInMs, steps, cb) {
-        var time = timeInMs,
-            killSwitch = Meteor.setInterval(function () {
-                time -= steps;
-                if (time < 0) {
-                    Spielebuch.stopCountdown(killSwitch);
-                    return cb();
-                }
-            }, steps);
-        return killSwitch;
-    };
-
-    Spielebuch.stopCountdown = function (killSwitch) {
-        Meteor.clearInterval(killSwitch);
-        Meteor.setTimeout(function () {
-            Session.set('criticalTiming', 0);
-        }, 2000);
-    };
-
-    Spielebuch.global = {};
 }
 
 /**

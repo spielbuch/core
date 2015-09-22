@@ -19,12 +19,12 @@
  */
 
 class Story extends Spielebuch.Base {
-    constructor(userId) {
-        super(userId);
+    constructor(userId,load) {
+        super(userId,load);
         var self = this;
         if (self.created) {
             self.onCreate();
-        }else {
+        } else {
             self.load(userId);
         }
     }
@@ -35,12 +35,12 @@ class Story extends Spielebuch.Base {
     /**
      * This event is added to each gameobject in this story
      */
-    addDefaultEvent(name, fnc, icon){
+    addDefaultEvent(name, fnc, icon) {
         var self = this;
         if (Meteor.isClient) {
             Spielebuch.error(403, 'You cannot add a defaultEvent to a story from the client.');
         }
-        if(Meteor.isServer){
+        if (Meteor.isServer) {
             var fncId = Spielebuch.StoredFunction.save(fnc, self.get('userId'));
             if (fncId) {
                 self.push('defaultEvents', {
@@ -54,13 +54,12 @@ class Story extends Spielebuch.Base {
     }
 
 
-
     /**
      * Overwrites Base load to set _id by fetching the story by the userId
      * @param userId
      * @returns {boolean}: Feedback if Id was set.
      */
-    load(userId){
+    load(userId) {
         var self = this;
         var cursor = Spielebuch[self.getCollection()].find({userId: userId}, {_id: 1, userId: 1, limit: 1});
         if (cursor.count() === 0) {
@@ -88,6 +87,10 @@ class Story extends Spielebuch.Base {
             'defaultEvents': {
                 type: Array,
                 default: []
+            },
+            eventVariables: {
+                type: Object,
+                default: {}
             }
         };
     }
@@ -118,7 +121,7 @@ class Story extends Spielebuch.Base {
 
     addScene() {
         if (Meteor.isServer) {
-            var self = this, scene = new Spielebuch.Scene(self.get('userId'),self.get('_id'));
+            var self = this, scene = new Spielebuch.Scene(self.get('userId'), self.get('_id'));
             self.push('scenes', scene.get('_id'));
             scene.index = self.get('scenes').length - 1;
             return scene;
@@ -175,6 +178,18 @@ class Story extends Spielebuch.Base {
             self.next(sceneId);                     //simply starting the scene by calling Story.next()
         }
 
+    }
+
+    /**
+     * Variables in this object will be available in stored functions.
+     */
+    publish(key, value) {
+        var self = this;
+        if (Meteor.isServer) {
+            var eventVariables = self.get('eventVariables');
+            eventVariables[key] = value;
+            self.set('eventVariables', eventVariables);
+        }
     }
 
 

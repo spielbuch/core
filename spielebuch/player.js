@@ -46,6 +46,7 @@ class Player extends Spielebuch.HasEffects {
             name = Spielebuch.Gameplay.damage;
         }
         target.addEffect(new Spielebuch.Effect(name, [new Spielebuch.Rule(Spielebuch.Gameplay.hitpoints, '-' + self.getValueByName(method))]));
+        Spielebuch.print('damage', self.get('name'), target.get('name'), self.getValueByName(method));
     }
 
     addEffect(effect) {
@@ -57,8 +58,13 @@ class Player extends Spielebuch.HasEffects {
         return Spielebuch.Gameobject.find({referenceId: self.get('userId')});
     }
 
+    destroy() {
+        var self = this;
+        Spielebuch.print('destroyedObject', self.get('name'));
+        super.destroy();
+    }
 
-    afterDestruction(fnc){
+    afterDestruction(fnc) {
         var self = this, fncId = super.afterDestruction(fnc);
         self.set('afterDestruction', fncId);
     }

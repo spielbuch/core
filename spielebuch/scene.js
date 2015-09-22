@@ -19,9 +19,10 @@
  */
 
 class Scene extends Spielebuch.Base {
-    constructor(userId, storyId) {
-        super(userId);
+    constructor(userId, storyId, load) {
+        super(userId, load);
         var self = this;
+
         if (self.created) {
             self.onCreate(storyId);
         }
@@ -103,6 +104,12 @@ class Scene extends Spielebuch.Base {
             Spielebuch.log('Added text to scene ' + self._id + '.');
             return gameobject;
         }
+    }
+
+    getText(){
+        var self = this;
+        self.executeOnStart();
+        return self.get('text');
     }
 
     onFirstVisit(fnc) {

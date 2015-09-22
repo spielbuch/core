@@ -23,4 +23,5 @@ if (Meteor.isClient) {
     Session.setDefault('playingSceneId', -1);
     Session.setDefault('spielebuchText', -1);
     Session.setDefault('spielebuchReady',false);
+    Session.setDefault('spielebuchLog',[]);
 }

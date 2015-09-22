@@ -26,7 +26,7 @@ Package.describe({
 });
 
 Package.onUse(function (api) {
-    api.versionsFrom('1.0');
+    api.versionsFrom('1.2');
 
     api.use([
         'meteor-base',
@@ -46,9 +46,14 @@ Package.onUse(function (api) {
     api.addFiles('utilities/startup.js', ['server', 'client']);
 
     /**
-     * Add function to log events on serverside
+     * Add function to log events
      */
     api.addFiles('utilities/log.js', ['server', 'client']);
+
+    /**
+     * Add timer to use on the client
+     */
+    api.addFiles('utilities/timer.js','client');
 
 
     /**
@@ -93,6 +98,13 @@ Package.onUse(function (api) {
      * Publications
      */
     api.addFiles('utilities/publications.js', 'server');
+
+    /**
+     * I18N
+     */
+    api.addFiles('utilities/i18n.js', ['server', 'client']);
+    api.addFiles('utilities/language_de.js', ['server', 'client']);
+    api.addFiles('utilities/language_en.js', ['server', 'client']);
 
     if (api.export) {
         api.export('Spielebuch');

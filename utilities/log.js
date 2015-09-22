@@ -33,3 +33,33 @@ Spielebuch.error = function (errorcode, msg) {
         }
     }
 };
+
+
+
+/**
+ * Is used to print a message via key from Spielebuch.i18n Object.
+ * @param key
+ */
+Spielebuch.print = function (key) {
+    var log = Session.get('spielebuchLog'), msg = Spielebuch.i18n.get(key, arguments);
+    if (msg) {
+        log.reverse(); //we want a stack, so we reverse the array
+        log.push(msg); //push the msg, which adds it to the last position
+        log.reverse(); //reverse the array back, and we have a stack where the first element is the newest one
+        Session.set('spielebuchLog', log);
+    }
+};
+
+/**
+ * Prints a string directly.
+ * @param msg
+ */
+Spielebuch.printd = function(msg){
+    var log = Session.get('spielebuchLog');
+    if (msg) {
+        log.reverse(); //we want a stack, so we reverse the array
+        log.push(msg); //push the msg, which adds it to the last position
+        log.reverse(); //reverse the array back, and we have a stack where the first element is the newest one
+        Session.set('spielebuchLog', log);
+    }
+}
