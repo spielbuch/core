@@ -112,6 +112,12 @@ class Story extends Spielebuch.Base {
         }
     }
 
+    getPlayer(){
+        var self = this;
+        var player = new Spielebuch.Player(self.get('userId'),true);
+        return player;
+    }
+
     currentSceneId() {
         if (Meteor.isClient) {
             var self = this;

@@ -45,11 +45,6 @@ if (Meteor.isClient) {
             Meteor.subscribe('userStory', {
                     onReady: function () {
                         Spielebuch.log('Subscription is ready.')
-                        if (!Meteor.userId()) {
-                            //no user logged in. Ignore it silently.
-                            return;
-                        }
-
                         /**
                          * Keep track of user's story
                          */
@@ -61,7 +56,8 @@ if (Meteor.isClient) {
                                 return;
                             }
                             Spielebuch.log('Found story.');
-
+                            Spielebuch.story.set(story);
+                            Spielebuch.player.set(story.getPlayer());
 
                             Session.set('storyId', story.get('_id'));
                         });
@@ -82,6 +78,9 @@ if (Meteor.isClient) {
                                     ' history. Make sure that you called \'Story.start()\'.');
                             } else {
                                 Session.set('playingSceneId', playingSceneId);
+                                var scene = new Spielebuch.Scene(Meteor.userId());
+                                scene.load(playingSceneId);
+                                Spielebuch.scene.set(scene);
                             }
 
                         });
@@ -91,18 +90,14 @@ if (Meteor.isClient) {
                          * Keep track of the playingSceneId and change the text accordingly
                          */
                         Tracker.autorun(function () {
-                            if (!Meteor.userId()) {
-                                return;
+                            var scene = Spielebuch.scene.get();
+                            if(scene) {
+                                Spielebuch.log('Text of scene was set.');
+                                Session.set('spielebuchReady', true);
+                                Session.set('spielebuchText', scene.getText());
+                            }else{
+                                Session.set('spielebuchReady', false);
                             }
-                            if (!Session.get('playingSceneId')) {
-                                Spielebuch.error(404, 'The scene ' + Session.get('playingSceneId') + ' was not found in the database.');
-                            }
-                            var playingScene = new Spielebuch.Scene(Meteor.userId(), Session.get('storyId'), false);
-                            playingScene.load(Session.get('playingSceneId'));
-
-                            Session.set('spielebuchText', playingScene.getText());
-                            Spielebuch.log('Text of scene was set.');
-                            Session.set('spielebuchReady', true);
 
                         });
                         Spielebuch.log('Tracking text.');
@@ -118,8 +113,9 @@ if (Meteor.isClient) {
             );
         }
     };
-
-
+    Spielebuch.story = new ReactiveVar(false);
+    Spielebuch.scene = new ReactiveVar(false);
+    Spielebuch.player = new ReactiveVar(false);
 }
 
 /**
