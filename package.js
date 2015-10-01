@@ -33,7 +33,8 @@ Package.onUse(function (api) {
         'mongo',
         'session',
         'ecmascript',
-        'accounts-base'
+        'accounts-base',
+        'reactive-var'
     ]);
 
     api.imply([
@@ -100,11 +101,10 @@ Package.onUse(function (api) {
     api.addFiles('utilities/publications.js', 'server');
 
     /**
-     * I18N
+     * Strings that can be overwritten by language packages
      */
-    api.addFiles('utilities/i18n.js', ['server', 'client']);
-    api.addFiles('utilities/language_de.js', ['server', 'client']);
-    api.addFiles('utilities/language_en.js', ['server', 'client']);
+    api.addFiles('utilities/language.js', ['server', 'client']);
+
 
     if (api.export) {
         api.export('Spielebuch');

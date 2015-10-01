@@ -55,7 +55,7 @@ class Player extends Spielebuch.HasEffects {
 
     getBackpackList() {
         var self = this;
-        return Spielebuch.Gameobject.find({referenceId: self.get('userId')});
+        return Spielebuch.Gameobjects.find({referenceId: self.get('userId')}).fetch();
     }
 
     destroy() {
