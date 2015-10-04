@@ -139,8 +139,8 @@ class HasEffectsClass extends Spielebuch.Base {
         if (!name) {
             name = Spielebuch.Gameplay.damage;
         }
-        calculateDamage(this, target, name); //attack target
-        calculateDamage(target, this, name); //target fights back
+        calculateDamage(this, target, method); //attack target
+        calculateDamage(target, this, method); //target fights back
     }
 
     getObjectEffect() {
