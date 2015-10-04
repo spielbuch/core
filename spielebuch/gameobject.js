@@ -19,18 +19,19 @@
  */
 
 class Gameobject extends Spielebuch.HasEffects {
-    constructor(objectname, referenceId, userId) {
+    constructor(objectName, objectKey, referenceId, userId, load) {
         super(userId);
         var self = this;
         if (self.created) {
-            self.onCreate(objectname, referenceId, userId);
+            self.onCreate(objectName, objectKey, referenceId, userId);
         }
     }
 
-    onCreate(objectname, referenceId, userId) {
+    onCreate(objectName, objectKey, referenceId, userId) {
         var self = this;
         Spielebuch.log('New Gameobject was created.');
-        self.set('name', objectname);
+        self.set('name', objectName);
+        self.set('key', objectKey);
         self.set('referenceId', referenceId);
         self.set('userId', userId);
 
@@ -38,7 +39,7 @@ class Gameobject extends Spielebuch.HasEffects {
          * Set default events
          */
         var defaultEvents = Spielebuch.getDefaultEvents(userId);
-        if(defaultEvents) {
+        if (defaultEvents) {
             _.each(defaultEvents, function (event) {
                 if (event) {
                     self.push('events', event);
@@ -92,26 +93,25 @@ class Gameobject extends Spielebuch.HasEffects {
      * Gameobject is removed from the scene (if it is in a scene) and then removed completely.
      */
     destroy() {
-        var self = this;
-        self.removeFromScene();
-        Spielebuch.print('destroyedObject',self.get('name'));
+        this.removeFromScene();
+        Spielebuch.print('destroyedObject', this.get('name'));
         super.destroy();
     }
 
-    afterDestruction(fnc){
+    afterDestruction(fnc) {
         var self = this, fncId = super.afterDestruction(fnc);
         self.set('afterDestruction', fncId);
     }
 
     removeFromScene() {
-        var self = this;
         /**
          * Trying to remove it from scene
          */
         var scene = new Spielebuch.Scene();
-        var res = scene.load(self.get('referenceId'));
-        if (res) {
-            scene.removeGameobject(self.get('_id'))
+        scene.load(this.get('referenceId'));
+        console.log(scene);
+        if (scene) {
+            scene.removeGameobject(this.get('_id'));
         }
     }
 
@@ -121,6 +121,10 @@ class Gameobject extends Spielebuch.HasEffects {
             'name': {
                 type: String,
                 default: 'Unnamed Object'
+            },
+            'key': {
+                type: String,
+                default: 'default'
             },
             'referenceId': {
                 type: String,

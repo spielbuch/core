@@ -30,7 +30,7 @@ class Scene extends Spielebuch.Base {
 
     onCreate(storyId) {
         var self = this;
-        self.set('storyId',storyId);
+        self.set('storyId', storyId);
     }
 
     getFields(userId) {
@@ -72,17 +72,20 @@ class Scene extends Spielebuch.Base {
 
     removeGameobject(_id) {
         var self = this, text = self.get('text');
-        _.each(text, function (sentence, key) {
-            if (typeof sentence === 'string') {
-                if (sentence.indexOf(_id)!==-1) {
-                    return text.splice(key, 1);
+        _.forEach(text, (textStack,textStackKey) => {
+            _.forEach(textStack, (sentence,sentenceKey) => {
+                if (typeof sentence === 'string') {
+                    if (sentence.indexOf(_id) !== -1) {
+                        return textStack.splice(sentenceKey, 1);
+                    }
                 }
+            });
+            if(textStack.length===0){
+                text.splice(textStackKey, 1);
             }
         });
         self.set('text', text);
     }
-
-
 
 
     /**
@@ -90,23 +93,36 @@ class Scene extends Spielebuch.Base {
      * Changes the markuped text, that the objectnames are replaced by the _ids of the created objects.
      * @param text: Text with markdown, that will be searched for gameobjects
      * @param referenceId: The _id of the place, the object is in (_id of scene or user)
-     * @returns {{gameobjects: Array, text: String}}
+     * @returns {}
      */
-    addText(text) {
+    addText() {
         if (Meteor.isServer) {
-            var self = this, re = /[^[\]]+(?=])/, objects = re.exec(text), objectname, gameobject;
-            if (objects !== null) {
-                objectname = objects[0];
-                gameobject = new Spielebuch.Gameobject(objectname, self._id, self.get('userId'), self.get('_id'));
-                text = text.replace(new RegExp('\\[' + objectname + '\\]', 'g'), '[' + gameobject.get('_id') + ']');
+            var re = /\[([^\]]+)\]\(([^)]+)\)/, result = {}, textStack = [], gameObjectArray = [];
+            _.forEach(arguments, (text) => {
+                var regexResult = re.exec(text);
+                if (regexResult !== null) {
+                    var objectName = regexResult[1];
+                    var objectKey = regexResult[2];
+                    var gameObject = new Spielebuch.Gameobject(objectName, objectKey, this._id, this.get('userId'), this.get('_id'));
+                    text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/, '[' + gameObject.get('_id') + ']');
+                    gameObjectArray.push({key: objectKey, gameObject: gameObject});
+                }
+                textStack.push(text);
+            });
+            this.push('text', textStack);
+            Spielebuch.log('Added text to scene ' + this._id + '.');
+            if (gameObjectArray.length > 1) {
+                _.forEach(gameObjectArray, (item)=> {
+                    result[item.key] = item.gameObject;
+                });
+            } else if (gameObjectArray.length === 1) {
+                result = gameObjectArray[0].gameObject;
             }
-            self.push('text', text);
-            Spielebuch.log('Added text to scene ' + self._id + '.');
-            return gameobject;
+            return result;
         }
     }
 
-    getText(){
+    getText() {
         var self = this;
         self.executeOnStart();
         return self.get('text');
@@ -130,10 +146,14 @@ class Scene extends Spielebuch.Base {
         if (Meteor.isClient) {
             var self = this, visited = self.get('visited');
             if (visited) {
-                Spielebuch.StoredFunction.execute(self.get('onVisit'));
+                if(self.get('onVisit')){
+                    Spielebuch.StoredFunction.execute(self.get('onVisit'));
+                }
             }
             else {
-                Spielebuch.StoredFunction.execute(self.get('onFirstVisit'));
+                if(self.get('onFirstVisit')){
+                    Spielebuch.StoredFunction.execute(self.get('onFirstVisit'));
+                }
                 self.set('visited', true);
             }
         }

@@ -41,7 +41,7 @@ class BaseClass {
         }
 
 
-        if (Meteor.isServer && !load) {
+        if (!load && Meteor.isServer) {
             self._id = self.setDefault(userId);
             Spielebuch.log('New Object in ' + self.getCollection() + ' was created. The _id is ' + self._id + '.');
             self.created = true; //this decides if the child-object calls its onCreate-Method
@@ -149,26 +149,27 @@ class BaseClass {
     }
 
     set(key, value) {
-        var self = this, update = {};
+        var update = {};
         if (typeof key === 'string' && value) {
-            self.validate(key, value);
+            this.validate(key, value);
             update[key] = value;
         } else if (!value && typeof key==='object') {
             /**
              * If there is no value and
              */
             update = key;
-            self.validate(key);
+            this.validate(key);
         } else {
             /**
              * key is no string, but a value exist. This should not happen.
              */
             Spielebuch.error('500', 'The update went wrong. Base.set() was misused.');
+            return;
         }
-        if (self._id) {
-            return Spielebuch[self.getCollection()].update(self._id, {$set: update});
+        if (this._id) {
+            return Spielebuch[this.getCollection()].update(this._id, {$set: update});
         } else {
-            return Spielebuch[self.getCollection()].insert(update);
+            return Spielebuch[this.getCollection()].insert(update);
         }
     }
 

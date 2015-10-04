@@ -31,19 +31,24 @@ Package.onUse(function (api) {
     api.use([
         'meteor-base',
         'mongo',
+        'check',
         'session',
         'ecmascript',
+        'es5-shim',
         'accounts-base',
-        'reactive-var'
+        'reactive-var',
+        'risul:chance'
     ]);
 
     api.imply([
+        'es5-shim',
         'accounts-base'
     ]);
 
 
 
     api.addFiles('spielebuch.js', ['server', 'client']);
+    api.addFiles('utilities/calculator.js', ['server', 'client']);
     api.addFiles('utilities/startup.js', ['server', 'client']);
 
     /**
@@ -112,6 +117,11 @@ Package.onUse(function (api) {
 });
 
 Package.onTest(function(api) {
-    api.use('tinytest');
-    api.addFiles('tests.js', ['server']);
+    api.use([
+        'risul:chance',
+        'spielebuch:core',
+        'tinytest',
+        'test-helpers'
+    ]);
+    api.addFiles('test-server.js', 'server');
 });

@@ -18,6 +18,13 @@
  * along with spielebuch:core. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * Make chance available on the server
+ * @type {Chance}
+ */
+chance = new Chance()
+
+
 Meteor.methods({
     /**
      * These methods are used to delete stuff.
@@ -47,7 +54,7 @@ Meteor.methods({
 
         return true;
     },
-    addEffect: function(collection, _id, effect){
+    addEffect: function (collection, _id, effect) {
         var update = {};
         update['effects'] = effect;
 
@@ -57,7 +64,7 @@ Meteor.methods({
         });
 
     },
-    isGameobject: function(_id){
+    isGameobject: function (_id) {
         var cursor = Spielebuch.Gameobjects.find({_id: _id}, {_id: 1, limit: 1});
         if (cursor.count() === 0) {
             return false;
@@ -66,15 +73,15 @@ Meteor.methods({
     }
 });
 
-Spielebuch.getDefaultEvents = function(userId){
+Spielebuch.getDefaultEvents = function (userId) {
     if (!userId) {
         return false;
     }
     var doc = Spielebuch.Stories.findOne({userId: userId});
-    if(!doc){
+    if (!doc) {
         return false;
     }
-    if(!doc.defaultEvents){
+    if (!doc.defaultEvents) {
         return false;
     }
     return doc.defaultEvents;

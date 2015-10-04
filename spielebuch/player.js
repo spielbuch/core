@@ -37,18 +37,6 @@ class Player extends Spielebuch.HasEffects {
 
     }
 
-    /**
-     * Creates an damage effect with the stats of the player.
-     */
-    attack(method, target, name) {
-        var self = this;
-        if (!name) {
-            name = Spielebuch.Gameplay.damage;
-        }
-        target.addEffect(new Spielebuch.Effect(name, [new Spielebuch.Rule(Spielebuch.Gameplay.hitpoints, '-' + self.getValueByName(method))]));
-        Spielebuch.print('damage', self.get('name'), target.get('name'), self.getValueByName(method));
-    }
-
     addEffect(effect) {
         return super.addEffect(effect);
     }
@@ -74,7 +62,7 @@ class Player extends Spielebuch.HasEffects {
         return {
             'name': {
                 type: String,
-                default: 'Noname'
+                default: chance.name()
             },
             'userId': {
                 type: String,

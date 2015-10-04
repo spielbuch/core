@@ -45,7 +45,7 @@ if (Meteor.isServer) {
                  * If the object is a gameobject, the user can access it by calling self
                  */
                 if (Meteor.call('isGameobject', _id)) {
-                    selfString = 'var self = new Spielebuch.Gameobject();' +
+                    selfString = 'var self = new Spielebuch.Gameobject(Meteor.userId());' +
                         'self.load(\'' + _id + '\');'
                 }
                 /**
@@ -115,12 +115,29 @@ if (Meteor.isServer) {
      * Saves functionstring to database.
      */
     Spielebuch.StoredFunction.save = function (fnc, userId) {
-        if (typeof fnc !== 'function') {
-            Spielebuch.error(500, 'This is not a function, it cannot be stored');
+        var functionString = '';
+        if (typeof fnc === 'function') {
+            /**
+             * Escape the codefrom the function
+             */
+            functionString = fnc.toString().match(/function[^{]+\{([\s\S]*)\}$/)[1];
         }
-        var functionString = fnc.toString().match(/function[^{]+\{([\s\S]*)\}$/)[1];
-        functionString = functionString.replace(/(\r\n|\n|\r)/gm, "");
-
+        else if (typeof fnc === 'string') {
+            functionString = fnc;
+        }
+        else {
+            Spielebuch.error(500, 'This is neither a function nor a string, it cannot be stored');
+        }
+        /**
+         * Escape the commetents
+         * @type {string}
+         */
+        functionString = functionString.replace(/(\/\*([\s\S]*?)\*\/)|(\/\/(.*)$)/gm, '');
+        /**
+         * Escaoe tabs, linebreaks and double spaces
+         * @type {string}
+         */
+        functionString = functionString.replace(/(\r\n|\n|\r|\s\s)/gm, "");
         var _id = Spielebuch.StoredFunctions.insert({
             userId: userId,
             fncString: functionString
@@ -147,8 +164,8 @@ if (Meteor.isClient) {
             try {
                 (fnc());
             } catch (e) {
+                console.log(e);
                 Spielebuch.error(500, e);
-                Spielebuch.log(fncString);
             }
         });
     };

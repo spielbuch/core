@@ -61,6 +61,9 @@ Spielebuch.language = {
     damage: function(attacker,target, damage){
         return `${attacker} attacked ${target} and inflicted ${damage} ${Spielebuch.Gameplay.damage}`
     },
+    criticalDamage: function(attacker,target, damage){
+        return `${attacker} attacked ${target} and inflicted a critical ${Spielebuch.Gameplay.damage} of ${damage} `
+    },
     event: function(player, event, target){
         return `${player} used ${event} on ${target}.`;
     }
