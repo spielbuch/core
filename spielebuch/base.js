@@ -26,7 +26,6 @@ class BaseClass {
      * @returns {boolean} Returns true when onCreate should be called in the subclass.
      */
     constructor(userId, load) {
-        var self = this;
         /**
          * Check if userId is set on the server. On the client it is set automatically when user is loggedin
          */
@@ -34,19 +33,19 @@ class BaseClass {
             if(Meteor.userId()){
                 userId = Meteor.userId();
             }else{
-                Spielebuch.error(403, 'You cannot create an object in ' + self.getCollection() + ' without beeing loggedin.');
+                Spielebuch.error(403, 'You cannot create an object in ' + this.getCollection() + ' without beeing loggedin.');
             }
         }else if(!userId && Meteor.isServer){
-            Spielebuch.error(500, 'You cannot create an object in ' + self.getCollection() + ' without supplying an userId.');
+            Spielebuch.error(500, 'You cannot create an object in ' + this.getCollection() + ' without supplying an userId.');
         }
 
 
         if (!load && Meteor.isServer) {
-            self._id = self.setDefault(userId);
-            Spielebuch.log('New Object in ' + self.getCollection() + ' was created. The _id is ' + self._id + '.');
-            self.created = true; //this decides if the child-object calls its onCreate-Method
+            this._id = this.setDefault(userId);
+            Spielebuch.log('New Object in ' + this.getCollection() + ' was created. The _id is ' + this._id + '.');
+            this.created = true; //this decides if the child-object calls its onCreate-Method
         }else{
-            self.created = false;
+            this.created = false;
         }
     }
 

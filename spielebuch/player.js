@@ -19,22 +19,29 @@
  */
 
 class Player extends Spielebuch.HasEffects {
-    constructor(userId) {
-        super(userId);
-        var self = this;
-        if (self.created) {
-            self.onCreate();
+    constructor(userId, load) {
+        super(userId, load);
+        if (this.created) {
+            this.onCreate();
         } else {
             var doc = Spielebuch.Players.findOne({userId: userId});
             if (doc) {
-                self._id = doc._id;
+                this._id = doc._id;
             }
         }
     }
 
 
     onCreate() {
-
+        this.set('body', {
+                handLeft: {value: false, icon: ''},
+                handRight: {value: false, icon: ''},
+                armor: {value: false, icon: ''},
+                footLeft: {value: false, icon: ''},
+                footRight: {value: false, icon: ''},
+                head: {value: false, icon: ''}
+            }
+        )
     }
 
     addEffect(effect) {
@@ -43,7 +50,15 @@ class Player extends Spielebuch.HasEffects {
 
     getBackpackList() {
         var self = this;
-        return Spielebuch.GameObjects.find({referenceId: self.get('userId')}).fetch();
+        return Spielebuch.GameObjects.find({referenceId: self.get('userId')}).map((gameObject)=> {
+            var equipped = this.equipped(gameObject._id);
+            if(equipped===false){
+                gameObject.equipped = 'false'; //we have to use a string, because Blaze has problems with bool.
+            }else {
+                gameObject.equipped = equipped;
+            }
+            return gameObject;
+        });
     }
 
     destroy() {
@@ -58,7 +73,57 @@ class Player extends Spielebuch.HasEffects {
     }
 
 
-    getFields(userId) {
+    equip(gameObject, bodyPartName) {
+        if (!bodyPartName) {
+            bodyPartName = gameObject.get('equipmentTarget');
+        }
+        if (bodyPartName !== gameObject.get('equipmentTarget')) {
+            Spielebuch.print('equippingFailed', gameObject.get('name'), bodyPartName);
+            return;
+        }
+
+        var player = new Spielebuch.Player(this.get('userId'), true);
+        var body = player.get('body');
+        if (!body) {
+            body = player.getFields(this.get('userId')).body;
+        }
+        if (body[bodyPartName] === undefined) {
+            Spielebuch.print('equippingForbidden', gameObject.get('name'));
+            return;
+        }
+
+        body[bodyPartName].value = gameObject.get('_id');
+        player.set('body', body);
+    }
+
+    unequip(gameObject) {
+        var body = this.get('body');
+        var bodyPart = this.equipped(this.get('_id'));
+        if (!body || !bodyPart) {
+            return;
+        }
+        body[bodyPart] = false;
+        this.set('body', body);
+    }
+
+    /**
+     * Test if an gameobject is equipped by the player.
+     * If yes, this function will return the bodypart as string.
+     * If not it will return false.
+     * @param gameObjectId
+     * @returns {boolean|string}
+     */
+    equipped(gameObjectId) {
+        var result = false;
+        _.forEach(this.get('body'), (part, key)=> {
+            if (part.value === gameObjectId) {
+                result = key;
+            }
+        });
+        return result;
+    }
+
+    static getFields(userId) {
         return {
             'name': {
                 type: String,
@@ -76,14 +141,18 @@ class Player extends Spielebuch.HasEffects {
                 type: String,
                 default: ''
             },
-            backpack: {
+            'backpack': {
                 type: Array,
                 default: []
+            },
+            'body': {
+                type: Object,
+                default: {}
             }
         };
     }
 
-    getCollection() {
+    static getCollection() {
         return 'Players';
     }
 }

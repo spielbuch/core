@@ -66,6 +66,12 @@ Spielebuch.language = {
     },
     event: function(player, event, target){
         return `${player} used ${event} on ${target}.`;
+    },
+    equippingFailed: function(name,bodyPart){
+        return `You cannot equip ${name} to ${bodyPart}.`
+    },
+    equippingForbidden: function(name){
+        return `You cannot equip ${name}.`
     }
 
 

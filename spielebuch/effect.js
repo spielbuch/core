@@ -108,8 +108,8 @@ Spielebuch.Effect = Effect;
 
 
 class HasEffectsClass extends Spielebuch.Base {
-    constructor(userId) {
-        super(userId);
+    constructor(userId, load) {
+        super(userId, load);
     }
 
     addEffect(effect) {

@@ -25,7 +25,8 @@ Spielebuch = {
     },
     Gameplay: {
         hitpoints: 'Hitpoints',
-        damage: 'Damage'
+        damage: 'Damage',
+        defense: 'Defense'
     },
     /**
      * If the author is in need of a global variable, he can dump it in here.

@@ -70,7 +70,6 @@ Meteor.methods({
 
     },
     dropToScene: function(gameObjectId, sceneId){
-        console.log('drop it');
         var update = Spielebuch.Scenes.update(sceneId, {
             $push: {text: [`<dropped>[${gameObjectId}]</dropped>`]}
         });

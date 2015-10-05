@@ -21,9 +21,8 @@
 class GameObject extends Spielebuch.HasEffects {
     constructor(objectName, objectKey, referenceId, userId, load) {
         super(userId);
-        var self = this;
-        if (self.created) {
-            self.onCreate(objectName, objectKey, referenceId, userId);
+        if (this.created) {
+            this.onCreate(objectName, objectKey, referenceId, userId);
         }
     }
 
@@ -115,6 +114,26 @@ class GameObject extends Spielebuch.HasEffects {
         }
     }
 
+    setEquipRules(bodyPart, rules) {
+        if (Meteor.isServer) {
+            check(bodyPart,String);
+            this.set('equipmentTarget',bodyPart);
+            if(rules) {
+                var equipmentRules = {};
+                if (Array.isArray(rules.allow)) {
+                    equipmentRules.allow = rules.allow;
+                }
+                if (Array.isArray(rules.deny)) {
+                    equipmentRules.allow = rules.deny;
+                }
+                this.set('equipmentRules',equipmentRules);
+            }
+        }else{
+            Spielebuch.error(403,'You can set equipment rules only on server-side.')
+        }
+
+    }
+
 
     getFields(userId) {
         return {
@@ -145,6 +164,17 @@ class GameObject extends Spielebuch.HasEffects {
             'afterDestruction': {
                 type: String,
                 default: ''
+            },
+            equipmentTarget: {
+                type: String,
+                default: ''
+            },
+            equipmentRules: {
+                type: Object,
+                default: {
+                    allow: [],
+                    deny: []
+                }
             }
         };
     }
