@@ -211,7 +211,7 @@ class HasEffectsClass extends Spielebuch.Base {
         if(Meteor.isClient) {
             Spielebuch.StoredFunction.execute(this.get('afterDestruction'), this.get('_id'));
         }
-        Spielebuch.Gameobjects.remove(this.get('_id'));
+        Spielebuch.GameObjects.remove(this.get('_id'));
     }
 
     afterDestruction(fnc) {

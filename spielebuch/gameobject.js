@@ -18,7 +18,7 @@
  * along with spielebuch:core. If not, see <http://www.gnu.org/licenses/>.
  */
 
-class Gameobject extends Spielebuch.HasEffects {
+class GameObject extends Spielebuch.HasEffects {
     constructor(objectName, objectKey, referenceId, userId, load) {
         super(userId);
         var self = this;
@@ -29,7 +29,7 @@ class Gameobject extends Spielebuch.HasEffects {
 
     onCreate(objectName, objectKey, referenceId, userId) {
         var self = this;
-        Spielebuch.log('New Gameobject was created.');
+        Spielebuch.log('New GameObject was created.');
         self.set('name', objectName);
         self.set('key', objectKey);
         self.set('referenceId', referenceId);
@@ -81,7 +81,7 @@ class Gameobject extends Spielebuch.HasEffects {
      * Gameobjct is taken by a player or anything else. It is removed from the scene (if it is in one),
      * then the referenceId is updated to the new owner of the object.
      * @param referenceId: The _id of the entity (player, npc etc.) that took the item.
-     * Will be the new referenceId of the Gameobject
+     * Will be the new referenceId of the GameObject
      */
     take() {
         var self = this;
@@ -90,7 +90,7 @@ class Gameobject extends Spielebuch.HasEffects {
     }
 
     /**
-     * Gameobject is removed from the scene (if it is in a scene) and then removed completely.
+     * GameObject is removed from the scene (if it is in a scene) and then removed completely.
      */
     destroy() {
         this.removeFromScene();
@@ -111,7 +111,7 @@ class Gameobject extends Spielebuch.HasEffects {
         scene.load(this.get('referenceId'));
         console.log(scene);
         if (scene) {
-            scene.removeGameobject(this.get('_id'));
+            scene.removeGameObject(this.get('_id'));
         }
     }
 
@@ -150,8 +150,8 @@ class Gameobject extends Spielebuch.HasEffects {
     }
 
     getCollection() {
-        return 'Gameobjects';
+        return 'GameObjects';
     }
 }
-Spielebuch.Gameobject = Gameobject;
-Spielebuch.Gameobjects = new Mongo.Collection('gameobjects');
+Spielebuch.GameObject = GameObject;
+Spielebuch.GameObjects = new Mongo.Collection('gameObjects');

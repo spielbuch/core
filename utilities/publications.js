@@ -31,7 +31,7 @@ Meteor.publish('userStory', function () {
         Spielebuch.Scenes.find(userOrGlobal, {
             fields: {effects: 1, onFirstVisit: 1, storyId: 1, text: 1, userId: 1, onVisit: 1, visited: 1}
         }),
-        Spielebuch.Gameobjects.find(userOrGlobal, {
+        Spielebuch.GameObjects.find(userOrGlobal, {
             fields: {effects: 1, events: 1, name: 1, overrides: 1, userId: 1, referenceId: 1,afterDestruction: 1}
         }),
         Spielebuch.StoredFunctions.find(userOrGlobal, {

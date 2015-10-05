@@ -33,7 +33,7 @@ class Story extends Spielebuch.Base {
     }
 
     /**
-     * This event is added to each gameobject in this story
+     * This event is added to each gameObject in this story
      */
     addDefaultEvent(name, fnc, icon) {
         var self = this;

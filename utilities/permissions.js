@@ -34,5 +34,5 @@ var ownStuff = {
 
 Spielebuch.Stories.allow(ownStuff);
 Spielebuch.Scenes.allow(ownStuff);
-Spielebuch.Gameobjects.allow(ownStuff);
+Spielebuch.GameObjects.allow(ownStuff);
 Spielebuch.Players.allow(ownStuff);

@@ -42,10 +42,10 @@ if (Meteor.isServer) {
                  */
 
                 /**
-                 * If the object is a gameobject, the user can access it by calling self
+                 * If the object is a gameObject, the user can access it by calling self
                  */
-                if (Meteor.call('isGameobject', _id)) {
-                    selfString = 'var self = new Spielebuch.Gameobject(Meteor.userId());' +
+                if (Meteor.call('isGameObject', _id)) {
+                    selfString = 'var self = new Spielebuch.GameObject(Meteor.userId());' +
                         'self.load(\'' + _id + '\');'
                 }
                 /**

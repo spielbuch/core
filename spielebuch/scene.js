@@ -70,7 +70,7 @@ class Scene extends Spielebuch.Base {
         return 'Scenes';
     }
 
-    removeGameobject(_id) {
+    removeGameObject(_id) {
         var self = this, text = self.get('text');
         _.forEach(text, (textStack,textStackKey) => {
             _.forEach(textStack, (sentence,sentenceKey) => {
@@ -91,7 +91,7 @@ class Scene extends Spielebuch.Base {
     /**
      * Creates gameobjets from a text with markup.
      * Changes the markuped text, that the objectnames are replaced by the _ids of the created objects.
-     * @param text: Text with markdown, that will be searched for gameobjects
+     * @param text: Text with markdown, that will be searched for gameObjects
      * @param referenceId: The _id of the place, the object is in (_id of scene or user)
      * @returns {}
      */
@@ -103,7 +103,7 @@ class Scene extends Spielebuch.Base {
                 if (regexResult !== null) {
                     var objectName = regexResult[1];
                     var objectKey = regexResult[2];
-                    var gameObject = new Spielebuch.Gameobject(objectName, objectKey, this._id, this.get('userId'), this.get('_id'));
+                    var gameObject = new Spielebuch.GameObject(objectName, objectKey, this._id, this.get('userId'), this.get('_id'));
                     text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/, '[' + gameObject.get('_id') + ']');
                     gameObjectArray.push({key: objectKey, gameObject: gameObject});
                 }

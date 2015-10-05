@@ -22,7 +22,7 @@
  * Make chance available on the server
  * @type {Chance}
  */
-chance = new Chance()
+chance = new Chance();
 
 
 Meteor.methods({
@@ -42,7 +42,7 @@ Meteor.methods({
         Spielebuch.Scenes.remove({
             'userId': this.userId
         });
-        Spielebuch.Gameobjects.remove({
+        Spielebuch.GameObjects.remove({
             'userId': this.userId
         });
         Spielebuch.StoredFunctions.remove({
@@ -64,12 +64,21 @@ Meteor.methods({
         });
 
     },
-    isGameobject: function (_id) {
-        var cursor = Spielebuch.Gameobjects.find({_id: _id}, {_id: 1, limit: 1});
-        if (cursor.count() === 0) {
-            return false;
+    isGameObject: function (_id) {
+        var cursor = Spielebuch.GameObjects.find({_id: _id}, {_id: 1, limit: 1});
+        return cursor.count() !== 0;
+
+    },
+    dropToScene: function(gameObjectId, sceneId){
+        console.log('drop it');
+        var update = Spielebuch.Scenes.update(sceneId, {
+            $push: {text: [`<dropped>[${gameObjectId}]</dropped>`]}
+        });
+        if(update){
+            Spielebuch.GameObjects.update(gameObjectId,{$set: {referenceId:sceneId}});
+        }else{
+            Spielebuch.error(500,'Update of scene in method dropToScene failed.');
         }
-        return true;
     }
 });
 
@@ -85,4 +94,4 @@ Spielebuch.getDefaultEvents = function (userId) {
         return false;
     }
     return doc.defaultEvents;
-}
+};
