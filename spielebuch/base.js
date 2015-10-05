@@ -127,14 +127,14 @@ class BaseClass {
 
 
     get(key) {
-        var self = this, data;
+        var data;
         if (key === '_id') {
             //we don't need this reactive, because the _id will never change.
-            return self._id;
+            return this._id;
         }
-        data = Spielebuch[self.getCollection()].findOne(self._id);
+        data = Spielebuch[this.getCollection()].findOne(this._id);
         if (!data) {
-            Spielebuch.log('Object with _id ' + self._id + ' not found in ' + self.getCollection() + '.');
+            Spielebuch.log('Object with _id ' + this._id + ' not found in ' + this.getCollection() + '.');
             return undefined;
         }
         if (!key) {

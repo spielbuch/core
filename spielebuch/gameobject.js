@@ -108,7 +108,6 @@ class GameObject extends Spielebuch.HasEffects {
          */
         var scene = new Spielebuch.Scene();
         scene.load(this.get('referenceId'));
-        console.log(scene);
         if (scene) {
             scene.removeGameObject(this.get('_id'));
         }

@@ -52,9 +52,9 @@ class Player extends Spielebuch.HasEffects {
         var self = this;
         return Spielebuch.GameObjects.find({referenceId: self.get('userId')}).map((gameObject)=> {
             var equipped = this.equipped(gameObject._id);
-            if(equipped===false){
+            if (equipped === false) {
                 gameObject.equipped = 'false'; //we have to use a string, because Blaze has problems with bool.
-            }else {
+            } else {
                 gameObject.equipped = equipped;
             }
             return gameObject;
@@ -98,11 +98,8 @@ class Player extends Spielebuch.HasEffects {
 
     unequip(gameObject) {
         var body = this.get('body');
-        var bodyPart = this.equipped(this.get('_id'));
-        if (!body || !bodyPart) {
-            return;
-        }
-        body[bodyPart] = false;
+        var bodyPart = this.equipped(gameObject.get('_id'));
+        body[bodyPart].value = false;
         this.set('body', body);
     }
 
@@ -123,7 +120,12 @@ class Player extends Spielebuch.HasEffects {
         return result;
     }
 
-    static getFields(userId) {
+    changeName(name) {
+        check(name, String);
+        this.set('name',name);
+    }
+
+    getFields(userId) {
         return {
             'name': {
                 type: String,
@@ -152,7 +154,7 @@ class Player extends Spielebuch.HasEffects {
         };
     }
 
-    static getCollection() {
+    getCollection() {
         return 'Players';
     }
 }

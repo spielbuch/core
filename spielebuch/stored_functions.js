@@ -164,7 +164,6 @@ if (Meteor.isClient) {
             try {
                 (fnc());
             } catch (e) {
-                console.log(e);
                 Spielebuch.error(500, e);
             }
         });
