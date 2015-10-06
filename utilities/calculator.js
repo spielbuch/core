@@ -1,5 +1,10 @@
 calculateDamage = function (source, target, method, name) {
-    var damage = source.getValueByName(method);
+    var damage = 0;
+    if(typeof source.getEffectiveValueByName === 'function') {
+        var damage = source.getEffectiveValueByName(method);
+    }else{
+        damage = source.getValueByName(method);
+    }
     if (damage) {
         var hitMultiplier = chance.integer({min: 5, max: 20}) / 10;
         var damageEffect = new Spielebuch.Effect(name, [new Spielebuch.Rule(Spielebuch.Gameplay.hitpoints, '-' + damage)]);

@@ -117,6 +117,7 @@ if (Meteor.isClient) {
     Spielebuch.story = new ReactiveVar(false);
     Spielebuch.scene = new ReactiveVar(false);
     Spielebuch.player = new ReactiveVar(false);
+
 }
 
 /**

@@ -120,20 +120,73 @@ class Player extends Spielebuch.HasEffects {
         return result;
     }
 
+
+    /**
+     * Returns an array with all the equipped objects.
+     * @returns {Array}
+     */
+    getEquippedObjects() {
+        var result = [];
+        _.forEach(this.get('body'), (gameObjectId, key)=> {
+            result[key] = new Spielebuch.GameObject(this.get('userId'));
+            result[key].load(gameObjectId);
+        });
+        return result;
+    }
+
+    /**
+     * Returns all the rules of the gameObjects the player is equipped.
+     * @returns {Array}
+     */
+    getEquippedRules(){
+        var rules = [];
+        _.forEach(this.getEquippedObjects(), (gameObject)=>{
+            rules.concat(gameObject.getRules());
+        });
+        return rules;
+    }
+
+    /**
+     * Returns an effect object with the equipped objects rules
+     * @returns {Effect}
+     */
+    createEquippedEffect() {
+        return new Spielebuch.Effect('Equipped',this.getEquippedRules());
+    }
+
+    /**
+     * Returns numeric value of a property of the player's equipment
+     * @param propertyName
+     * @returns Number
+     */
+    getEquippedValueByName(propertyName) {
+        var properties = this.getEquippedProperies();
+        return properties[propertyName];
+    }
+
+    /**
+     * Returns all the properies of the player's equipment as object
+     * @returns {key: String, value: Number}
+     */
+    getEquippedProperies() {
+        return this.createEquippedEffect().getProperties();
+    }
+
+
     changeName(name) {
         check(name, String);
-        this.set('name',name);
+        this.set('name', name);
     }
 
     /**
      * Creates an damage effect with the stats of the player.
      */
     attack(target, attack, name) {
-        if(Meteor.isClient) {
+        if (Meteor.isClient) {
             if (!name) {
                 name = Spielebuch.Gameplay.hitpoints;
             }
-            if(!attack){
+            if (!attack) {
                 attack = Spielebuch.Gameplay.damage;
             }
             calculateDamage(this, target, attack, name); //attack target
@@ -141,6 +194,24 @@ class Player extends Spielebuch.HasEffects {
         }
     }
 
+    /**
+     * Adds the value of a property of the equipment
+     * to the value of a property of the player
+     * and returns it as number.
+     * @param name
+     * @returns Number
+     */
+    getEffectiveValueByName(name){
+        var value = super.getValueByName(name),
+            valueEquipment = this.getEquippedValueByName(name);
+        return value + valueEquipment;
+    }
+
+    /**
+     *
+     * @param userId
+     * @returns {{name: {type: String, default: *}, userId: {type: String, default: *}, effects: {type: Array, default: Array}, afterDestruction: {type: String, default: string}, backpack: {type: Array, default: Array}, body: {type: Object, default: {}}}}
+     */
     getFields(userId) {
         return {
             'name': {
