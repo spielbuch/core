@@ -132,17 +132,6 @@ class HasEffectsClass extends Spielebuch.Base {
         }
     }
 
-    /**
-     * Creates an damage effect with the stats of the player.
-     */
-    attack(method, target, name) {
-        if (!name) {
-            name = Spielebuch.Gameplay.damage;
-        }
-        calculateDamage(this, target, method); //attack target
-        calculateDamage(target, this, method); //target fights back
-    }
-
     getObjectEffect() {
         var self = this, objectEffect = new Effect(self.get('name') + 'Effect', self.getRules());
         return objectEffect;
@@ -208,7 +197,7 @@ class HasEffectsClass extends Spielebuch.Base {
     }
 
     destroy() {
-        if(Meteor.isClient) {
+        if (Meteor.isClient) {
             Spielebuch.StoredFunction.execute(this.get('afterDestruction'), this.get('_id'));
         }
         Spielebuch.GameObjects.remove(this.get('_id'));

@@ -55,6 +55,7 @@ Meteor.methods({
         return true;
     },
     addEffect: function (collection, _id, effect) {
+        console.log(effect);
         var update = {};
         update['effects'] = effect;
 

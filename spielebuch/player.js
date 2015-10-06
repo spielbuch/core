@@ -125,6 +125,22 @@ class Player extends Spielebuch.HasEffects {
         this.set('name',name);
     }
 
+    /**
+     * Creates an damage effect with the stats of the player.
+     */
+    attack(target, attack, name) {
+        if(Meteor.isClient) {
+            if (!name) {
+                name = Spielebuch.Gameplay.hitpoints;
+            }
+            if(!attack){
+                attack = Spielebuch.Gameplay.damage;
+            }
+            calculateDamage(this, target, attack, name); //attack target
+            calculateDamage(target, this, attack, name); //target fights back
+        }
+    }
+
     getFields(userId) {
         return {
             'name': {
