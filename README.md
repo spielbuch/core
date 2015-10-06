@@ -3,7 +3,7 @@ This is a framework to create interactive stories.
 A story is written with a few simple and easy to understand JavaScript-Functions.
 
 # Install
-- If you speal german, click [here](https://github.com/spielebuch/example-de) if you speak english click [here](https://github.com/spielebuch/example-en)
+- If you speak German, click [here](https://github.com/spielebuch/example-de) if you speak English click [here](https://github.com/spielebuch/example-en)
 
 
 # Install from scratch
@@ -27,13 +27,13 @@ A story is written with a few simple and easy to understand JavaScript-Functions
 #Documentation
 This is still work in progress. The API can change and a documentation will be written. 
 For an example application go to: 
-- https://github.com/spielebuch/example-en (english)
-- https://github.com/spielebuch/example-de (german)
+- https://github.com/spielebuch/example-en (English)
+- https://github.com/spielebuch/example-de (German)
 
 To see the application in action visit:
 http://spielebuch.meteor.com/ (german)
 
-If you have ideas or find bugs feel free to create an [issue](https://github.com/spielebuch/core/issues).
+If you have ideas or find bugs, feel free to create an [issue](https://github.com/spielebuch/core/issues).
 
 
 # License
