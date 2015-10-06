@@ -38,7 +38,7 @@ Package.onUse(function (api) {
         'es5-shim',
         'accounts-base',
         'reactive-var',
-        'risul:chance'
+        'risul:chance@1.0.7_1'
     ]);
 
     api.imply([
