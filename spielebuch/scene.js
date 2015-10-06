@@ -21,16 +21,14 @@
 class Scene extends Spielebuch.Base {
     constructor(userId, storyId, load) {
         super(userId, load);
-        var self = this;
 
-        if (self.created) {
-            self.onCreate(storyId);
+        if (this.created) {
+            this.onCreate(storyId);
         }
     }
 
     onCreate(storyId) {
-        var self = this;
-        self.set('storyId', storyId);
+        this.set('storyId', storyId);
     }
 
     getFields(userId) {
@@ -71,7 +69,7 @@ class Scene extends Spielebuch.Base {
     }
 
     removeGameObject(_id) {
-        var self = this, text = self.get('text');
+        var text = this.get('text');
         _.forEach(text, (textStack,textStackKey) => {
             _.forEach(textStack, (sentence,sentenceKey) => {
                 if (typeof sentence === 'string') {
@@ -84,16 +82,15 @@ class Scene extends Spielebuch.Base {
                 text.splice(textStackKey, 1);
             }
         });
-        self.set('text', text);
+        this.set('text', text);
     }
 
 
     /**
      * Creates gameobjets from a text with markup.
      * Changes the markuped text, that the objectnames are replaced by the _ids of the created objects.
-     * @param text: Text with markdown, that will be searched for gameObjects
-     * @param referenceId: The _id of the place, the object is in (_id of scene or user)
-     * @returns {}
+     * @param args [String]: Text with markdown, that will be searched for gameObjects
+     * @returns {}|GameObject|{gameobjectKey:Gameobject}
      */
     addText() {
         if (Meteor.isServer) {
@@ -103,7 +100,7 @@ class Scene extends Spielebuch.Base {
                 if (regexResult !== null) {
                     var objectName = regexResult[1];
                     var objectKey = regexResult[2];
-                    var gameObject = new Spielebuch.GameObject(objectName, objectKey, this._id, this.get('userId'), this.get('_id'));
+                    var gameObject = new Spielebuch.GameObject(objectName, objectKey, this.get('_id'), this.get('userId'),false);
                     text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/, '[' + gameObject.get('_id') + ']');
                     gameObjectArray.push({key: objectKey, gameObject: gameObject});
                 }
@@ -123,43 +120,41 @@ class Scene extends Spielebuch.Base {
     }
 
     getText() {
-        var self = this;
-        self.executeOnStart();
-        return self.get('text');
+        this.executeOnStart();
+        return this.get('text');
     }
 
     onFirstVisit(fnc) {
         if (Meteor.isServer) {
-            var self = this, fncId = Spielebuch.StoredFunction.save(fnc, self.get('userId'), self.get('_id'));
-            self.set('onFirstVisit', fncId);
+            var fncId = Spielebuch.StoredFunction.save(fnc, this.get('userId'), this.get('_id'));
+            this.set('onFirstVisit', fncId);
         }
     }
 
     onVisit(fnc) {
         if (Meteor.isServer) {
-            var self = this, fncId = Spielebuch.StoredFunction.save(fnc, self.get('userId'));
-            self.set('onVisit', fncId);
+            var fncId = Spielebuch.StoredFunction.save(fnc, this.get('userId'));
+            this.set('onVisit', fncId);
         }
     }
 
     executeOnStart() {
         if (Meteor.isClient) {
-            var self = this, visited = self.get('visited');
+            var visited = this.get('visited');
             if (visited) {
-                if(self.get('onVisit')){
-                    Spielebuch.StoredFunction.execute(self.get('onVisit'));
+                if(this.get('onVisit')){
+                    Spielebuch.StoredFunction.execute(this.get('onVisit'));
                 }
             }
             else {
-                if(self.get('onFirstVisit')){
-                    Spielebuch.StoredFunction.execute(self.get('onFirstVisit'));
+                if(this.get('onFirstVisit')){
+                    Spielebuch.StoredFunction.execute(this.get('onFirstVisit'));
                 }
-                self.set('visited', true);
+                this.set('visited', true);
             }
         }
     }
 }
-;
 
 Spielebuch.Scene = Scene;
 Spielebuch.Scenes = new Mongo.Collection('scenes');

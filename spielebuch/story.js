@@ -19,13 +19,12 @@
  */
 
 class Story extends Spielebuch.Base {
-    constructor(userId,load) {
-        super(userId,load);
-        var self = this;
-        if (self.created) {
-            self.onCreate();
+    constructor(userId, load) {
+        super(userId, load);
+        if (this.created) {
+            this.onCreate();
         } else {
-            self.load(userId);
+            this.load(userId);
         }
     }
 
@@ -36,14 +35,13 @@ class Story extends Spielebuch.Base {
      * This event is added to each gameObject in this story
      */
     addDefaultEvent(name, fnc, icon) {
-        var self = this;
         if (Meteor.isClient) {
             Spielebuch.error(403, 'You cannot add a defaultEvent to a story from the client.');
         }
         if (Meteor.isServer) {
-            var fncId = Spielebuch.StoredFunction.save(fnc, self.get('userId'));
+            var fncId = Spielebuch.StoredFunction.save(fnc, this.get('userId'));
             if (fncId) {
-                self.push('defaultEvents', {
+                this.push('defaultEvents', {
                     name: name,
                     fncId: fncId,
                     icon: icon
@@ -60,13 +58,12 @@ class Story extends Spielebuch.Base {
      * @returns {boolean}: Feedback if Id was set.
      */
     load(userId) {
-        var self = this;
-        var cursor = Spielebuch[self.getCollection()].find({userId: userId}, {_id: 1, userId: 1, limit: 1});
+        var cursor = Spielebuch[this.getCollection()].find({userId: userId}, {_id: 1, userId: 1, limit: 1});
         if (cursor.count() === 0) {
-            Spielebuch.error(404, 'Story for  user ' + userId + ' was not found in ' + self.getCollection() + '.');
+            Spielebuch.error(404, 'Story for  user ' + userId + ' was not found in ' + this.getCollection() + '.');
             return false;
         }
-        self._id = cursor.fetch()[0]._id;
+        this._id = cursor.fetch()[0]._id;
         return true;
     }
 
@@ -100,56 +97,50 @@ class Story extends Spielebuch.Base {
     }
 
     createPlayer() {
-        var self = this;
         if (Meteor.isClient) {
             Spielebuch.error(403, 'You cannot add a user to a story from the client.');
         }
         if (Meteor.isServer) {
-            var userId = self.get('userId');
+            var userId = this.get('userId');
             Spielebuch.log('Creating player for user ' + userId + '.');
-            var player = new Spielebuch.Player(userId);
-            return player;
+            return new Spielebuch.Player(userId);
         }
     }
 
-    getPlayer(){
-        var self = this;
-        var player = new Spielebuch.Player(self.get('userId'),true);
+    getPlayer() {
+        var player = new Spielebuch.Player(this.get('userId'), true);
         return player;
     }
 
     currentSceneId() {
-        if (Meteor.isClient) {
-            var self = this;
-            return self.last('history');
-        }
+        return this.last('history');
     }
 
     addScene() {
         if (Meteor.isServer) {
-            var self = this, scene = new Spielebuch.Scene(self.get('userId'), self.get('_id'));
-            self.push('scenes', scene.get('_id'));
-            scene.index = self.get('scenes').length - 1;
+            var scene = new Spielebuch.Scene(this.get('userId'), this.get('_id'));
+            this.push('scenes', scene.get('_id'));
+            scene.index = this.get('scenes').length - 1;
             return scene;
         }
     }
 
     /**
      * Starts a story with the first scene, if sceneInex is not set
-     * @param sceneInex: if it is set, the scene with the index of sceneIndex in Story.scenes will be the starting scene
+     * @param sceneIndex: if it is set, the scene with the index of sceneIndex in Story.scenes will be the starting scene
      */
     start(sceneIndex) {
-        var playingSceneId = false, self = this;
+        var playingSceneId = false;
         if (sceneIndex) {
-            playingSceneId = self.get('scenes')[sceneIndex];
+            playingSceneId = this.get('scenes')[sceneIndex];
         } else {
-            playingSceneId = self.get('scenes')[0];
+            playingSceneId = this.get('scenes')[0];
         }
         if (!playingSceneId) {
             Spielebuch.error('500', 'This scene does not exist.');
         } else {
-            Spielebuch.log('This story (' + self._id + ') starts with scene: ' + playingSceneId + ').');
-            self.push('history', playingSceneId);
+            Spielebuch.log('This story (' + this._id + ') starts with scene: ' + playingSceneId + ').');
+            this.push('history', playingSceneId);
         }
     }
 
@@ -160,14 +151,13 @@ class Story extends Spielebuch.Base {
     }
 
     next(playingSceneIndex) {
-        var self = this, sceneId;
         if (!playingSceneIndex) {
             Spielebuch.error('500', 'Forgot to define the index of the next scene');
         }
-        sceneId = self.get('scenes')[playingSceneIndex];
+        var sceneId = this.get('scenes')[playingSceneIndex];
         if (sceneId) {                           //test if this scene exists
-            self.push('history', sceneId);      //if it exists it is pushed into the history. This will update the view via the observer.
-            self.startScene(sceneId);
+            this.push('history', sceneId);      //if it exists it is pushed into the history. This will update the view via the observer.
+            this.startScene(sceneId);
         } else {
             Spielebuch.error('500', 'The scene with index ' + playingSceneIndex + ' does not exist.');
         }
@@ -178,10 +168,10 @@ class Story extends Spielebuch.Base {
      * The story jumps back to the last scene that was played before the current scene
      */
     before() {
-        var self = this, history = self.get('history'), sceneId;
+        var history = this.get('history'), sceneId;
         if (history.length >= 2) {                    //the history should contain at least two scenes to get the last.
             sceneId = history[history.length - 2];  //this will give us the item before the last item.
-            self.next(sceneId);                     //simply starting the scene by calling Story.next()
+            this.next(sceneId);                     //simply starting the scene by calling Story.next()
         }
 
     }
@@ -190,11 +180,10 @@ class Story extends Spielebuch.Base {
      * Variables in this object will be available in stored functions.
      */
     publish(key, value) {
-        var self = this;
         if (Meteor.isServer) {
-            var eventVariables = self.get('eventVariables');
+            var eventVariables = this.get('eventVariables');
             eventVariables[key] = value;
-            self.set('eventVariables', eventVariables);
+            this.set('eventVariables', eventVariables);
         }
     }
 

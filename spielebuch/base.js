@@ -50,46 +50,44 @@ class BaseClass {
     }
 
     getFields() {
-        Spielebuch.log('There are no fields implemented for ' + self.constructor.name + '.');
+        Spielebuch.log('There are no fields implemented for ' + this.constructor.name + '.');
     }
 
     getCollection() {
-        Spielebuch.log('There is no collection defined for ' + self.constructor.name + '.');
+        Spielebuch.log('There is no collection defined for ' + this.constructor.name + '.');
     };
 
     load(_id) {
-        var self = this;
-        var count = Spielebuch[self.getCollection()].find({_id: _id}, {_id: 1, limit: 1}).count();
+        var count = Spielebuch[this.getCollection()].find({_id: _id}, {_id: 1, limit: 1}).count();
         if (count === 0) {
-            Spielebuch.error(404, 'Object with _id ' + _id + ' was not found in ' + self.getCollection() + '.');
+            Spielebuch.error(404, 'Object with _id ' + _id + ' was not found in ' + this.getCollection() + '.');
             return false;
         }
-        self._id = _id;
+        this._id = _id;
         return true;
     }
 
     onCreate() {
-        var self = this;
-        Spielebuch.log('onCreate was not implemented for ' + self.getCollection() + '.');
+        Spielebuch.log('onCreate was not implemented for ' + this.getCollection() + '.');
     }
 
     /**
      * Sets default values for the values of this object.
      */
     setDefault(userId) {
-        var self = this, insert = {};
-        _.forEach(self.getFields(userId), function (field, key) {
+        var insert = {};
+        _.forEach(this.getFields(userId), function (field, key) {
             if (field.default) {
                 insert[key] = field.default;
             }
         });
-        return self.set(insert);
+        return this.set(insert);
     }
 
     validate(key, value) {
-        var self = this, data, field;
+        var data, field;
         if (typeof key === 'string' && value) {
-            field = self.getFields()[key];
+            field = this.getFields()[key];
             if (!field) {
                 Spielebuch.error(500, 'The Field ' + key + ' is not defined.');
             }
@@ -104,7 +102,7 @@ class BaseClass {
                 if (fieldKey !== '_id') {
                     return;
                 }
-                field = self.getFields()[fieldKey];
+                field = this.getFields()[fieldKey];
                 if (!field) {
                     Spielebuch.error(500, 'The Field ' + key + ' is not defined.');
                 }
@@ -175,9 +173,9 @@ class BaseClass {
     setInObject(objectKey, key, value){
         check(objectKey,String);
         check(key, String);
-        var self = this, doc = Spielebuch[self.getCollection()].findOne(self._id);
+        var doc = Spielebuch[this.getCollection()].findOne(this._id);
         doc[objectKey][key] = value;
-        Spielebuch[self.getCollection()].update(self._id, doc);
+        Spielebuch[this.getCollection()].update(this._id, doc);
     }
 
     /**
@@ -186,9 +184,9 @@ class BaseClass {
      * @param value
      */
     push(key, value) {
-        var self = this, update = {};
+        var update = {};
         update[key] = value;
-        return Spielebuch[self.getCollection()].update(self._id, {
+        return Spielebuch[this.getCollection()].update(this._id, {
             $push: update
         });
     }
@@ -199,8 +197,7 @@ class BaseClass {
      * @param key
      */
     last(key) {
-        var self = this;
-        return _.last(self.get(key));
+        return _.last(this.get(key));
     }
 }
 Spielebuch.Base = BaseClass;

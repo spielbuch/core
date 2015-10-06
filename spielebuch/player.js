@@ -49,8 +49,7 @@ class Player extends Spielebuch.HasEffects {
     }
 
     getBackpackList() {
-        var self = this;
-        return Spielebuch.GameObjects.find({referenceId: self.get('userId')}).map((gameObject)=> {
+        return Spielebuch.GameObjects.find({referenceId: this.get('userId')}).map((gameObject)=> {
             var equipped = this.equipped(gameObject._id);
             if (equipped === false) {
                 gameObject.equipped = 'false'; //we have to use a string, because Blaze has problems with bool.
@@ -62,45 +61,55 @@ class Player extends Spielebuch.HasEffects {
     }
 
     destroy() {
-        var self = this;
-        Spielebuch.print('destroyedObject', self.get('name'));
+        Spielebuch.print('destroyedObject', this.get('name'));
         super.destroy();
     }
 
     afterDestruction(fnc) {
-        var self = this, fncId = super.afterDestruction(fnc);
-        self.set('afterDestruction', fncId);
+        var fncId = super.afterDestruction(fnc);
+        this.set('afterDestruction', fncId);
     }
 
 
     equip(gameObject, bodyPartName) {
+
+        /**
+         * Test if the object has been taken by the player.
+         */
+        if(gameObject.get('referenceId')!==this.get('userId')){
+            Spielebuch.error(500,`The player has to take the ${gameObject.get('name')} before it can be equipped.`);
+            return false;
+        }
+
         if (!bodyPartName) {
             bodyPartName = gameObject.get('equipmentTarget');
         }
         if (bodyPartName !== gameObject.get('equipmentTarget')) {
             Spielebuch.print('equippingFailed', gameObject.get('name'), bodyPartName);
-            return;
+            return false;
         }
 
-        var player = new Spielebuch.Player(this.get('userId'), true);
-        var body = player.get('body');
+        var body = this.get('body');
         if (!body) {
-            body = player.getFields(this.get('userId')).body;
+            body = this.getFields(this.get('userId')).body;
         }
         if (body[bodyPartName] === undefined) {
             Spielebuch.print('equippingForbidden', gameObject.get('name'));
-            return;
+            return false;
         }
 
         body[bodyPartName].value = gameObject.get('_id');
-        player.set('body', body);
+        this.set('body', body);
+        return true;
     }
 
     unequip(gameObject) {
         var body = this.get('body');
         var bodyPart = this.equipped(gameObject.get('_id'));
-        body[bodyPart].value = false;
-        this.set('body', body);
+        if (bodyPart) {
+            body[bodyPart].value = false;
+            this.set('body', body);
+        }
     }
 
     /**
@@ -111,12 +120,24 @@ class Player extends Spielebuch.HasEffects {
      * @returns {boolean|string}
      */
     equipped(gameObjectId) {
-        var result = false;
-        _.forEach(this.get('body'), (part, key)=> {
+        var result = false, change = false, body = this.get('body');
+        _.forEach(body, (part, key)=> {
             if (part.value === gameObjectId) {
-                result = key;
+                /**
+                 * check with the database
+                 */
+                var doc = Spielebuch.GameObjects.findOne(gameObjectId);
+                if (doc && doc.referenceId === this.get('userId')) {
+                    result = key;
+                } else {
+                    part.value = false;
+                    change = true;
+                }
             }
         });
+        if (change) {
+            this.set('body', body);
+        }
         return result;
     }
 
@@ -126,10 +147,13 @@ class Player extends Spielebuch.HasEffects {
      * @returns {Array}
      */
     getEquippedObjects() {
-        var result = [];
-        _.forEach(this.get('body'), (gameObjectId, key)=> {
-            result[key] = new Spielebuch.GameObject(this.get('userId'));
-            result[key].load(gameObjectId);
+        var result = [], index = 0;
+        _.forEach(this.get('body'), (bodyPart)=> {
+            if (bodyPart.value) {
+                result[index] = new Spielebuch.GameObject('', '', '', this.get('userId'), true);
+                result[index].load(bodyPart.value);
+                index++;
+            }
         });
         return result;
     }
@@ -138,10 +162,10 @@ class Player extends Spielebuch.HasEffects {
      * Returns all the rules of the gameObjects the player is equipped.
      * @returns {Array}
      */
-    getEquippedRules(){
+    getEquippedRules() {
         var rules = [];
-        _.forEach(this.getEquippedObjects(), (gameObject)=>{
-            rules.concat(gameObject.getRules());
+        _.forEach(this.getEquippedObjects(), (gameObject)=> {
+            rules = rules.concat(gameObject.getRules());
         });
         return rules;
     }
@@ -151,7 +175,7 @@ class Player extends Spielebuch.HasEffects {
      * @returns {Effect}
      */
     createEquippedEffect() {
-        return new Spielebuch.Effect('Equipped',this.getEquippedRules());
+        return new Spielebuch.Effect('Equipped', this.getEquippedRules());
     }
 
     /**
@@ -160,7 +184,10 @@ class Player extends Spielebuch.HasEffects {
      * @returns Number
      */
     getEquippedValueByName(propertyName) {
-        var properties = this.getEquippedProperies();
+        var properties = this.getEquippedProperties();
+        if(!properties[propertyName]){
+            return 0;
+        }
         return properties[propertyName];
     }
 
@@ -168,13 +195,20 @@ class Player extends Spielebuch.HasEffects {
      * Returns all the properies of the player's equipment as object
      * @returns {key: String, value: Number}
      */
-    getEquippedProperies() {
+    getEquippedProperties() {
         return this.createEquippedEffect().getProperties();
     }
 
+    getName() {
+        return this.get('name');
+    }
 
-    changeName(name) {
-        check(name, String);
+    setName(name) {
+        check(name, Match.Where(function (str) {
+            check(str, String);
+            var regexp = /^[a-z0-9]+$/i;
+            return regexp.test(str);
+        }));
         this.set('name', name);
     }
 
@@ -189,8 +223,8 @@ class Player extends Spielebuch.HasEffects {
             if (!attack) {
                 attack = Spielebuch.Gameplay.damage;
             }
-            calculateDamage(this, target, attack, name); //attack target
-            calculateDamage(target, this, attack, name); //target fights back
+            Spielebuch.calculator.calculateDamage(this, target, attack, name); //attack target
+            Spielebuch.calculator.calculateDamage(target, this, attack, name); //target fights back
         }
     }
 
@@ -201,10 +235,10 @@ class Player extends Spielebuch.HasEffects {
      * @param name
      * @returns Number
      */
-    getEffectiveValueByName(name){
+    getEffectiveValueByName(name) {
         var value = super.getValueByName(name),
             valueEquipment = this.getEquippedValueByName(name);
-        return value + valueEquipment;
+        return parseInt(value) + parseInt(valueEquipment);
     }
 
     /**

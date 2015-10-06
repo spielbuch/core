@@ -20,19 +20,18 @@
 
 class GameObject extends Spielebuch.HasEffects {
     constructor(objectName, objectKey, referenceId, userId, load) {
-        super(userId);
+        super(userId, load);
         if (this.created) {
             this.onCreate(objectName, objectKey, referenceId, userId);
         }
     }
 
     onCreate(objectName, objectKey, referenceId, userId) {
-        var self = this;
         Spielebuch.log('New GameObject was created.');
-        self.set('name', objectName);
-        self.set('key', objectKey);
-        self.set('referenceId', referenceId);
-        self.set('userId', userId);
+        this.set('name', objectName);
+        this.set('key', objectKey);
+        this.set('referenceId', referenceId);
+        this.set('userId', userId);
 
         /**
          * Set default events
@@ -41,18 +40,17 @@ class GameObject extends Spielebuch.HasEffects {
         if (defaultEvents) {
             _.each(defaultEvents, function (event) {
                 if (event) {
-                    self.push('events', event);
+                    this.push('events', event);
                 }
             });
         }
     }
 
     setEvent(name, fnc, icon) {
-        var self = this;
         if (Meteor.isServer) {
-            var fncId = Spielebuch.StoredFunction.save(fnc, self.get('userId'));
+            var fncId = Spielebuch.StoredFunction.save(fnc, this.get('userId'));
             if (fncId) {
-                self.push('events', {
+                this.push('events', {
                     name: name,
                     fncId: fncId,
                     icon: icon
@@ -64,8 +62,7 @@ class GameObject extends Spielebuch.HasEffects {
     }
 
     getEvents() {
-        var self = this;
-        return self.get('events');
+        return this.get('events');
     }
 
     /**
@@ -83,9 +80,16 @@ class GameObject extends Spielebuch.HasEffects {
      * Will be the new referenceId of the GameObject
      */
     take() {
-        var self = this;
-        self.removeFromScene();
-        self.set('referenceId', self.get('userId'));
+        this.removeFromScene();
+        this.set('referenceId', this.get('userId'));
+    }
+
+    drop(targetSceneId) {
+        if (!targetSceneId) {
+            var story = new Spielebuch.Story(this.get('userId'), true);
+            targetSceneId = story.currentSceneId();
+        }
+        Meteor.call('dropToScene', this.get('_id'), targetSceneId);
     }
 
     /**
@@ -98,26 +102,28 @@ class GameObject extends Spielebuch.HasEffects {
     }
 
     afterDestruction(fnc) {
-        var self = this, fncId = super.afterDestruction(fnc);
-        self.set('afterDestruction', fncId);
+        var fncId = super.afterDestruction(fnc);
+        this.set('afterDestruction', fncId);
     }
 
     removeFromScene() {
         /**
          * Trying to remove it from scene
          */
-        var scene = new Spielebuch.Scene();
-        scene.load(this.get('referenceId'));
-        if (scene) {
-            scene.removeGameObject(this.get('_id'));
+        if (this.get('referenceId') !== this.get('userId')) {
+            var scene = new Spielebuch.Scene(this.get('userId'), '', true);
+            scene.load(this.get('referenceId'));
+            if (scene) {
+                scene.removeGameObject(this.get('_id'));
+            }
         }
     }
 
     setEquipRules(bodyPart, rules) {
         if (Meteor.isServer) {
-            check(bodyPart,String);
-            this.set('equipmentTarget',bodyPart);
-            if(rules) {
+            check(bodyPart, String);
+            this.set('equipmentTarget', bodyPart);
+            if (rules) {
                 var equipmentRules = {};
                 if (Array.isArray(rules.allow)) {
                     equipmentRules.allow = rules.allow;
@@ -125,10 +131,10 @@ class GameObject extends Spielebuch.HasEffects {
                 if (Array.isArray(rules.deny)) {
                     equipmentRules.allow = rules.deny;
                 }
-                this.set('equipmentRules',equipmentRules);
+                this.set('equipmentRules', equipmentRules);
             }
-        }else{
-            Spielebuch.error(403,'You can set equipment rules only on server-side.')
+        } else {
+            Spielebuch.error(403, 'You can set equipment rules only on server-side.')
         }
 
     }

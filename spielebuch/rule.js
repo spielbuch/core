@@ -20,11 +20,10 @@
 
 class Rule {
     constructor(key, value) {
-        var self = this;
         check(key, String);
         if (typeof value === 'string' || typeof value === 'number') {
-            self.key = key;
-            self.value = value;
+            this.key = key;
+            this.value = value;
         } else {
             Spielebuch.error(500, 'The type of a rule value must be a string or a number.')
         }

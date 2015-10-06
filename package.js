@@ -122,7 +122,8 @@ Package.onTest(function(api) {
         'risul:chance',
         'spielebuch:core',
         'tinytest',
-        'test-helpers'
+        'test-helpers',
+        'underscore'
     ]);
     api.addFiles('test-server.js', 'server');
 });

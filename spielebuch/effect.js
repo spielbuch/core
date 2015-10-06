@@ -20,18 +20,17 @@
 
 class Effect {
     constructor(name, rules) {
-        var self = this;
-        self.rules = [];
-        self.name = name;
+        this.rules = [];
+        this.name = name;
         if (Array.isArray(rules)) {
-            _.each(rules, function (rule) {
-                self.rules.push({
+            _.each(rules, (rule)=>{
+                this.rules.push({
                     key: rule.key,
                     value: rule.value
                 });
             });
         } else {
-            self.rules.push({
+            this.rules.push({
                 key: rules.key,
                 value: rules.value
             });
@@ -46,16 +45,15 @@ class Effect {
      * @returns {{name: *, rules: Array}}
      */
     getJSON() {
-        var self = this;
         return {
-            name: self.name,
-            rules: self.rules
+            name: this.name,
+            rules: this.rules
         }
     }
 
     getRules() {
-        var self = this, result = [];
-        _.each(self.rules, function (rule) {
+        var result = [];
+        _.each(this.rules, function (rule) {
             result.push(new Spielebuch.Rule(rule.key, rule.value));
         });
         return result;
@@ -66,30 +64,7 @@ class Effect {
      * @returns {{}}
      */
     getProperties() {
-        var self = this, stats = {};
-        _.each(self.rules, function (rule) {
-            /**
-             * If the stats already have his key (e.g. Hitpoints),
-             * Compute with it or override it.
-             * If it is not set (when undefined), set it
-             */
-            if (stats[rule.key] === undefined) {
-                stats[rule.key] = rule.value;
-            } else {
-                /**
-                 * If the value is a string, it is a manipulator, it will be computed with the existing value.
-                 * If it is a numeric, it will override the value.
-                 */
-                if (typeof rule.value === 'string' || rule.value instanceof String) {
-                    //we parse the values just to be sure. If stats[rule.key] was a manipulator we would do 'string'+'string' = 'stringstring' and this would be bad)
-                    stats[rule.key] = parseInt(stats[rule.key]) + parseInt(rule.value);
-                } else {
-                    //override the last value
-                    stats[rule.key] = rule.value;
-                }
-            }
-        });
-        return stats;
+        return Spielebuch.calculator.calculatePropertiesFromRules(this.getRules());
     }
 
     /**
@@ -97,10 +72,10 @@ class Effect {
      * @returns [Rule]
      */
     getPropertiesArray() {
-        var self = this, result = [];
-        _.each(self.getProperties(), function (value, key) {
+        var result = [];
+        _.each(this.getProperties(), function (value, key) {
             result.push(new Spielebuch.Rule(key, value));
-        })
+        });
         return result;
     }
 }
@@ -117,23 +92,26 @@ class HasEffectsClass extends Spielebuch.Base {
          * We use a serverside method to add effects to run some test to prevent cheating.
          */
         if (Meteor.isServer) {
-            Meteor.call('addEffect', this.getCollection(), this.get('_id'), effect.getJSON())
-            if (this.getValueByName(Spielebuch.Gameplay.hitpoints) <= 0) {
+            Meteor.call('addEffect', this.getCollection(), this.get('_id'), effect.getJSON());
+            if (this.getValueByName(Spielebuch.Gameplay.hitpoints) < 0) {
                 this.destroy();
             }
         }
         if (Meteor.isClient) {
-            Meteor.call('addEffect', this.getCollection(), this.get('_id'), effect.getJSON(), function (err) {
-                if (this.getValueByName(Spielebuch.Gameplay.hitpoints) <= 0) {
-                    this.destroy();
+            var gameObject = this;
+            Meteor.call('addEffect', this.getCollection(), this.get('_id'), effect.getJSON(), function(err){
+                if(err){
+                    Spielebuch.error(500,err);
+                }
+                if (gameObject.getValueByName(Spielebuch.Gameplay.hitpoints) < 0) {
+                    gameObject.destroy();
                 }
             });
         }
     }
 
     getObjectEffect() {
-        var objectEffect = new Effect(this.get('name') + 'Effect', this.getRules());
-        return objectEffect;
+        return new Effect(this.get('name') + 'Effect', this.getRules());
     }
 
     getValueByName(name) {
@@ -146,7 +124,7 @@ class HasEffectsClass extends Spielebuch.Base {
 
     /**
      * Returns an array with all the rules for this object.
-     * The rules are already calculated.
+     * The rules are already calculated (this means no doubles).
      * @returns {{}}
      */
     getProperties() {
@@ -187,7 +165,7 @@ class HasEffectsClass extends Spielebuch.Base {
      * @returns {Array}
      */
     getRules() {
-        var self = this, effects = self.getEffects(), result = [];
+        var effects = this.getEffects(), result = [];
         _.each(effects, function (effect) {
             result = result.concat(effect.getRules());
         });
