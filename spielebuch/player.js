@@ -206,7 +206,7 @@ class Player extends Spielebuch.HasEffects {
     setName(name) {
         check(name, Match.Where(function (str) {
             check(str, String);
-            var regexp = /^[a-z0-9]+$/i;
+            var regexp = /^[A-Za-z\d\s]+$/i;
             return regexp.test(str);
         }));
         this.set('name', name);

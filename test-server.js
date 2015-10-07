@@ -194,9 +194,14 @@ Tinytest.add('Test Spielebuch player I', function (test) {
         player.setName(1337);
     });
 
-    test.throws(function () {
-        player.setName('A B');
-    });
+    player.setName('A B');
+    test.equal(player.getName(), 'A B',
+        'Player.setName() does not work with spaces.');
+    player.setName('A Babo69');
+    test.equal(player.getName(), 'A Babo69',
+        'Player.setName() does not work with spaces and numbers.');
+
+
     test.throws(function () {
         player.setName('\'This should fail>');
     });
