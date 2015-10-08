@@ -24,7 +24,7 @@ Spielebuch.log = function (msg) {
     }
 };
 Spielebuch.error = function (errorcode, msg) {
-    if (Meteor.isClient) {
+    if (Meteor.isClient && Spielebuch.Settings.debug) {
         console.error(errorcode, msg);
     }
     if (Meteor.isServer) {
