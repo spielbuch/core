@@ -23,7 +23,7 @@ Package.describe({
     summary: 'A framework to create interactive stories.',
     documentation: 'readme.md',
     git: 'https://github.com/spielebuch/core',
-    version: '0.0.6'
+    version: '0.0.7'
 });
 
 Package.onUse(function (api) {
