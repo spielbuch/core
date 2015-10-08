@@ -14,15 +14,15 @@ Session.setDefault('spielbuchCountdownTimeLeft',-1);
 var killSwitchUI = false;
 Spielebuch.startUiCountdown = function (timeInMs, steps, cb) {
     var time = timeInMs;
-    Spielebuch.print('countdownStarted');
-    Session.set('spielbuchCountdownTime', time / 1000);
-    Session.set('spielbuchCountdownTimeLeft', time / 1000);
-    Session.set('spielbuchCountdownPercent',100);
     if(killSwitchUI){
         Spielebuch.stopCountdown(killSwitchUI);
         killSwitchUI = false;
     }
 
+    Spielebuch.print('countdownStarted');
+    Session.set('spielbuchCountdownTime', time / 1000);
+    Session.set('spielbuchCountdownTimeLeft', time / 1000);
+    Session.set('spielbuchCountdownPercent',100);
     killSwitchUI = Meteor.setInterval(function () {
         time -= steps;
         if (time < 0) {
@@ -51,5 +51,6 @@ Spielebuch.startSilentCountdown = function (timeInMs, steps, cb) {
 Spielebuch.stopCountdown = function (killSwitch) {
     Meteor.clearInterval(killSwitch);
     Spielebuch.print('countdownEnded');
-    Session.set('spielbuchCountdownTime', -1);
+    Session.setDefault('spielbuchCountdownTime',-1);
+    Session.setDefault('spielbuchCountdownTimeLeft',-1);
 };
