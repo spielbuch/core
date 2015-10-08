@@ -1,6 +1,6 @@
 Session.setDefault('spielbuchCountdownTime',-1);
 Session.setDefault('spielbuchCountdownTimeLeft',-1);
-
+Session.setDefault('spielbuchCountdownPercent',-1);
 
 /**
  * Starts a countdown. The time is sent to the ui via Session variable.
@@ -51,6 +51,7 @@ Spielebuch.startSilentCountdown = function (timeInMs, steps, cb) {
 Spielebuch.stopCountdown = function (killSwitch) {
     Meteor.clearInterval(killSwitch);
     Spielebuch.print('countdownEnded');
-    Session.setDefault('spielbuchCountdownTime',-1);
-    Session.setDefault('spielbuchCountdownTimeLeft',-1);
+    Session.set('spielbuchCountdownTime',-1);
+    Session.set('spielbuchCountdownTimeLeft',-1);
+    Session.set('spielbuchCountdownPercent',-1);
 };
