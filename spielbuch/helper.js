@@ -18,10 +18,15 @@
  * along with spielbuch:core. If not, see <http://www.gnu.org/licenses/>.
  */
 
-if (Meteor.isClient) {
-    Session.setDefault('storyId', -1);
-    Session.setDefault('playingSceneId', -1);
-    Session.setDefault('spielbuchText', -1);
-    Session.setDefault('spielbuchReady',false);
-    Session.setDefault('spielbuchLog',[]);
-}
+/**
+ * Contains some Functions that can be used when writing a story.
+ * @type {{}}
+ */
+Spielbuch.helper = {};
+
+Spielbuch.helper.getStoryById = function(storyId){
+    return Spielbuch.Stories.findOne(storyId);
+};
+
+
+

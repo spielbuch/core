@@ -3,25 +3,25 @@
  * Copyright 2015 Daniel Budick All rights reserved.
  * Contact: daniel@budick.eu / http://budick.eu
  *
- * This file is part of spielebuch:core
- * spielebuch:core is free software: you can redistribute it and/or modify
+ * This file is part of spielbuch:core
+ * spielbuch:core is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
- * spielebuch:core is distributed in the hope that it will be useful,
+ * spielbuch:core is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with spielebuch:core. If not, see <http://www.gnu.org/licenses/>.
+ * along with spielbuch:core. If not, see <http://www.gnu.org/licenses/>.
  */
 
-Spielebuch.i18n = {};
-Spielebuch.i18n.get = function (key, args) {
-    if (Spielebuch.language[key]) {
-        var text = Spielebuch.language[key];
+Spielbuch.i18n = {};
+Spielbuch.i18n.get = function (key, args) {
+    if (Spielbuch.language[key]) {
+        var text = Spielbuch.language[key];
         if (typeof text === 'string') {
             return text;
         }
@@ -42,11 +42,11 @@ Spielebuch.i18n.get = function (key, args) {
             return text;
         }
     }
-    Spielebuch.error(404, 'String for key: ' + key + ' was not found.');
+    Spielbuch.error(404, 'String for key: ' + key + ' was not found.');
     return false;
 };
 
-Spielebuch.language = {
+Spielbuch.language = {
     countdownStarted: 'A countdown started.',
     countdownEnded: 'Countdown stopped.',
     countdownTime: function(timeLeft){
@@ -59,10 +59,10 @@ Spielebuch.language = {
         return `${name} was killed.`;
     },
     damage: function(attacker,target, damage){
-        return `${attacker} attacked ${target} and inflicted ${damage} ${Spielebuch.Gameplay.damage}`
+        return `${attacker} attacked ${target} and inflicted ${damage} ${Spielbuch.Gameplay.damage}`
     },
     criticalDamage: function(attacker,target, damage){
-        return `${attacker} attacked ${target} and inflicted a critical ${Spielebuch.Gameplay.damage} of ${damage} `
+        return `${attacker} attacked ${target} and inflicted a critical ${Spielbuch.Gameplay.damage} of ${damage} `
     },
     event: function(player, event, target){
         return `${player} used ${event} on ${target}.`;

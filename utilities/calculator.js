@@ -1,5 +1,5 @@
-Spielebuch.calculator =  {};
-Spielebuch.calculator.calculateDamage = function (source, target, method, name) {
+Spielbuch.calculator =  {};
+Spielbuch.calculator.calculateDamage = function (source, target, method, name) {
     var damage = 0;
     if (typeof source.getEffectiveValueByName === 'function') {
         damage = source.getEffectiveValueByName(method);
@@ -9,20 +9,20 @@ Spielebuch.calculator.calculateDamage = function (source, target, method, name) 
     if (damage) {
         var hitMultiplier = chance.integer({min: 5, max: 20}) / 10;
         damage *= hitMultiplier;
-        damage -= target.getValueByName(Spielebuch.Gameplay.defense);
-        var damageEffect = new Spielebuch.Effect(name, [new Spielebuch.Rule(Spielebuch.Gameplay.hitpoints, '-' + damage)]);
+        damage -= target.getValueByName(Spielbuch.Gameplay.defense);
+        var damageEffect = new Spielbuch.Effect(name, [new Spielbuch.Rule(Spielbuch.Gameplay.hitpoints, '-' + damage)]);
         target.addEffect(damageEffect);
 
         if (hitMultiplier < 2) {
-            Spielebuch.print('damage', source.get('name'), target.get('name'), damage);
+            Spielbuch.print('damage', source.get('name'), target.get('name'), damage);
         } else {
-            Spielebuch.print('criticalDamage', source.get('name'), target.get('name'), damage);
+            Spielbuch.print('criticalDamage', source.get('name'), target.get('name'), damage);
         }
     }
 };
 
 
-Spielebuch.calculator.calculatePropertiesFromRules = function (rules) {
+Spielbuch.calculator.calculatePropertiesFromRules = function (rules) {
     var properties = {};
     _.forEach(rules, function (rule) {
         /**

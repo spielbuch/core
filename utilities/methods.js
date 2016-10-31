@@ -3,19 +3,19 @@
  * Copyright 2015 Daniel Budick All rights reserved.
  * Contact: daniel@budick.eu / http://budick.eu
  *
- * This file is part of spielebuch:core
- * spielebuch:core is free software: you can redistribute it and/or modify
+ * This file is part of spielbuch:core
+ * spielbuch:core is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
- * spielebuch:core is distributed in the hope that it will be useful,
+ * spielbuch:core is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with spielebuch:core. If not, see <http://www.gnu.org/licenses/>.
+ * along with spielbuch:core. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /**
@@ -31,24 +31,24 @@ Meteor.methods({
      */
     deleteStoryOfUser: function () {
         if (this.userId === null) {
-            Spielebuch.error('403', 'User is not logged in.');
+            Spielbuch.error('403', 'User is not logged in.');
             return false;
         }
-        Spielebuch.log('Deleting stories of user: ' + this.userId);
+        Spielbuch.log('Deleting stories of user: ' + this.userId);
 
-        Spielebuch.Stories.remove({
+        Spielbuch.Stories.remove({
             'userId': this.userId
         });
-        Spielebuch.Scenes.remove({
+        Spielbuch.Scenes.remove({
             'userId': this.userId
         });
-        Spielebuch.GameObjects.remove({
+        Spielbuch.GameObjects.remove({
             'userId': this.userId
         });
-        Spielebuch.StoredFunctions.remove({
+        Spielbuch.StoredFunctions.remove({
             'userId': this.userId
         });
-        Spielebuch.Players.remove({
+        Spielbuch.Players.remove({
             'userId': this.userId
         });
 
@@ -59,33 +59,33 @@ Meteor.methods({
         update['effects'] = effect;
 
         //todo: Add some tests to prevent cheating.
-        Spielebuch[collection].update(_id, {
+        Spielbuch[collection].update(_id, {
             $push: update
         });
 
     },
     isGameObject: function (_id) {
-        var cursor = Spielebuch.GameObjects.find({_id: _id}, {_id: 1, limit: 1});
+        var cursor = Spielbuch.GameObjects.find({_id: _id}, {_id: 1, limit: 1});
         return cursor.count() !== 0;
 
     },
     dropToScene: function(gameObjectId, sceneId){
-        var update = Spielebuch.Scenes.update(sceneId, {
+        var update = Spielbuch.Scenes.update(sceneId, {
             $push: {text: [`<dropped>[${gameObjectId}]</dropped>`]}
         });
         if(update){
-            Spielebuch.GameObjects.update(gameObjectId,{$set: {referenceId:sceneId}});
+            Spielbuch.GameObjects.update(gameObjectId,{$set: {referenceId:sceneId}});
         }else{
-            Spielebuch.error(500,'Update of scene in method dropToScene failed.');
+            Spielbuch.error(500,'Update of scene in method dropToScene failed.');
         }
     }
 });
 
-Spielebuch.getDefaultEvents = function (userId) {
+Spielbuch.getDefaultEvents = function (userId) {
     if (!userId) {
         return false;
     }
-    var doc = Spielebuch.Stories.findOne({userId: userId});
+    var doc = Spielbuch.Stories.findOne({userId: userId});
     if (!doc) {
         return false;
     }

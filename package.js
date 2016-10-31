@@ -3,26 +3,26 @@
  * Copyright 2015 Daniel Budick All rights reserved.
  * Contact: daniel@budick.eu / http://budick.eu
  *
- * This file is part of spielebuch:core
- * spielebuch:core is free software: you can redistribute it and/or modify
+ * This file is part of spielbuch:core
+ * spielbuch:core is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
- * spielebuch:core is distributed in the hope that it will be useful,
+ * spielbuch:core is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with spielebuch:core. If not, see <http://www.gnu.org/licenses/>.
+ * along with spielbuch:core. If not, see <http://www.gnu.org/licenses/>.
  */
 
 Package.describe({
-    name: 'spielebuch:core',
+    name: 'spielbuch:core',
     summary: 'A framework to create interactive stories.',
     documentation: 'readme.md',
-    git: 'https://github.com/spielebuch/core',
+    git: 'https://github.com/spielbuch/core',
     version: '0.0.7'
 });
 
@@ -48,7 +48,7 @@ Package.onUse(function (api) {
 
 
 
-    api.addFiles('spielebuch.js', ['server', 'client']);
+    api.addFiles('spielbuch.js', ['server', 'client']);
     api.addFiles('utilities/calculator.js', ['server', 'client']);
     api.addFiles('utilities/startup.js', ['server', 'client']);
 
@@ -66,18 +66,18 @@ Package.onUse(function (api) {
     /**
      * Adding objects
      */
-    api.addFiles('spielebuch/base.js', ['server', 'client']);
-    api.addFiles('spielebuch/effect.js', ['server', 'client']);
+    api.addFiles('spielbuch/base.js', ['server', 'client']);
+    api.addFiles('spielbuch/effect.js', ['server', 'client']);
 
-    api.addFiles('spielebuch/gameobject.js', ['server', 'client']);
-    api.addFiles('spielebuch/scene.js', ['server', 'client']);
-    api.addFiles('spielebuch/story.js', ['server', 'client']);
+    api.addFiles('spielbuch/gameobject.js', ['server', 'client']);
+    api.addFiles('spielbuch/scene.js', ['server', 'client']);
+    api.addFiles('spielbuch/story.js', ['server', 'client']);
 
 
-    api.addFiles('spielebuch/rule.js', ['server', 'client']);
+    api.addFiles('spielbuch/rule.js', ['server', 'client']);
 
-    api.addFiles('spielebuch/player.js', ['server', 'client']);
-    api.addFiles('spielebuch/helper.js', ['server', 'client']);
+    api.addFiles('spielbuch/player.js', ['server', 'client']);
+    api.addFiles('spielbuch/helper.js', ['server', 'client']);
 
 
     /**
@@ -89,7 +89,7 @@ Package.onUse(function (api) {
      * Every user should be able to read every function stored in here,
      * they are executed on their system, so transparency is imho necessary.
      */
-    api.addFiles('spielebuch/stored_functions.js', ['server', 'client']);
+    api.addFiles('spielbuch/stored_functions.js', ['server', 'client']);
 
     /**
      * Permissions for collections
@@ -113,14 +113,14 @@ Package.onUse(function (api) {
 
 
     if (api.export) {
-        api.export('Spielebuch');
+        api.export('Spielbuch');
     }
 });
 
 Package.onTest(function(api) {
     api.use([
         'risul:chance',
-        'spielebuch:core',
+        'spielbuch:core',
         'tinytest',
         'test-helpers',
         'underscore'

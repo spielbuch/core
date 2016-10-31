@@ -3,22 +3,22 @@
  * Copyright 2015 Daniel Budick All rights reserved.
  * Contact: daniel@budick.eu / http://budick.eu
  *
- * This file is part of spielebuch:core
- * spielebuch:core is free software: you can redistribute it and/or modify
+ * This file is part of spielbuch:core
+ * spielbuch:core is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
- * spielebuch:core is distributed in the hope that it will be useful,
+ * spielbuch:core is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with spielebuch:core. If not, see <http://www.gnu.org/licenses/>.
+ * along with spielbuch:core. If not, see <http://www.gnu.org/licenses/>.
  */
 
-class GameObject extends Spielebuch.HasEffects {
+class GameObject extends Spielbuch.HasEffects {
     constructor(objectName, objectKey, referenceId, userId, load) {
         super(userId, load);
         if (this.created) {
@@ -27,7 +27,7 @@ class GameObject extends Spielebuch.HasEffects {
     }
 
     onCreate(objectName, objectKey, referenceId, userId) {
-        Spielebuch.log('New GameObject was created.');
+        Spielbuch.log('New GameObject was created.');
         this.set('name', objectName);
         this.set('key', objectKey);
         this.set('referenceId', referenceId);
@@ -36,7 +36,7 @@ class GameObject extends Spielebuch.HasEffects {
         /**
          * Set default events
          */
-        var defaultEvents = Spielebuch.getDefaultEvents(userId);
+        var defaultEvents = Spielbuch.getDefaultEvents(userId);
         if (defaultEvents) {
             _.each(defaultEvents, function (event) {
                 if (event) {
@@ -48,7 +48,7 @@ class GameObject extends Spielebuch.HasEffects {
 
     setEvent(name, fnc, icon) {
         if (Meteor.isServer) {
-            var fncId = Spielebuch.StoredFunction.save(fnc, this.get('userId'));
+            var fncId = Spielbuch.StoredFunction.save(fnc, this.get('userId'));
             if (fncId) {
                 this.push('events', {
                     name: name,
@@ -57,7 +57,7 @@ class GameObject extends Spielebuch.HasEffects {
                 });
             }
         } else {
-            Spielebuch.error(500, 'The client is not allowed to set an event, for it would be madness!');
+            Spielbuch.error(500, 'The client is not allowed to set an event, for it would be madness!');
         }
     }
 
@@ -66,7 +66,7 @@ class GameObject extends Spielebuch.HasEffects {
     }
 
     /**
-     * Implements the addEffect method of Spielebuch.HasEffects
+     * Implements the addEffect method of Spielbuch.HasEffects
      * @returns {*}
      */
     addEffect(effect) {
@@ -86,7 +86,7 @@ class GameObject extends Spielebuch.HasEffects {
 
     drop(targetSceneId) {
         if (!targetSceneId) {
-            var story = new Spielebuch.Story(this.get('userId'), true);
+            var story = new Spielbuch.Story(this.get('userId'), true);
             targetSceneId = story.currentSceneId();
         }
         Meteor.call('dropToScene', this.get('_id'), targetSceneId);
@@ -97,7 +97,7 @@ class GameObject extends Spielebuch.HasEffects {
      */
     destroy() {
         this.removeFromScene();
-        Spielebuch.print('destroyedObject', this.get('name'));
+        Spielbuch.print('destroyedObject', this.get('name'));
         super.destroy();
     }
 
@@ -111,7 +111,7 @@ class GameObject extends Spielebuch.HasEffects {
          * Trying to remove it from scene
          */
         if (this.get('referenceId') !== this.get('userId')) {
-            var scene = new Spielebuch.Scene(this.get('userId'), '', true);
+            var scene = new Spielbuch.Scene(this.get('userId'), '', true);
             scene.load(this.get('referenceId'));
             if (scene) {
                 scene.removeGameObject(this.get('_id'));
@@ -134,7 +134,7 @@ class GameObject extends Spielebuch.HasEffects {
                 this.set('equipmentRules', equipmentRules);
             }
         } else {
-            Spielebuch.error(403, 'You can set equipment rules only on server-side.')
+            Spielbuch.error(403, 'You can set equipment rules only on server-side.')
         }
 
     }
@@ -188,5 +188,5 @@ class GameObject extends Spielebuch.HasEffects {
         return 'GameObjects';
     }
 }
-Spielebuch.GameObject = GameObject;
-Spielebuch.GameObjects = new Mongo.Collection('gameObjects');
+Spielbuch.GameObject = GameObject;
+Spielbuch.GameObjects = new Mongo.Collection('gameObjects');

@@ -3,19 +3,19 @@
  * Copyright 2015 Daniel Budick All rights reserved.
  * Contact: daniel@budick.eu / http://budick.eu
  *
- * This file is part of spielebuch:core
- * spielebuch:core is free software: you can redistribute it and/or modify
+ * This file is part of spielbuch:core
+ * spielbuch:core is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
- * spielebuch:core is distributed in the hope that it will be useful,
+ * spielbuch:core is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with spielebuch:core. If not, see <http://www.gnu.org/licenses/>.
+ * along with spielbuch:core. If not, see <http://www.gnu.org/licenses/>.
  */
 
 class BaseClass {
@@ -33,16 +33,16 @@ class BaseClass {
             if(Meteor.userId()){
                 userId = Meteor.userId();
             }else{
-                Spielebuch.error(403, 'You cannot create an object in ' + this.getCollection() + ' without beeing loggedin.');
+                Spielbuch.error(403, 'You cannot create an object in ' + this.getCollection() + ' without beeing loggedin.');
             }
         }else if(!userId && Meteor.isServer){
-            Spielebuch.error(500, 'You cannot create an object in ' + this.getCollection() + ' without supplying an userId.');
+            Spielbuch.error(500, 'You cannot create an object in ' + this.getCollection() + ' without supplying an userId.');
         }
 
 
         if (!load && Meteor.isServer) {
             this._id = this.setDefault(userId);
-            Spielebuch.log('New Object in ' + this.getCollection() + ' was created. The _id is ' + this._id + '.');
+            Spielbuch.log('New Object in ' + this.getCollection() + ' was created. The _id is ' + this._id + '.');
             this.created = true; //this decides if the child-object calls its onCreate-Method
         }else{
             this.created = false;
@@ -50,17 +50,17 @@ class BaseClass {
     }
 
     getFields() {
-        Spielebuch.log('There are no fields implemented for ' + this.constructor.name + '.');
+        Spielbuch.log('There are no fields implemented for ' + this.constructor.name + '.');
     }
 
     getCollection() {
-        Spielebuch.log('There is no collection defined for ' + this.constructor.name + '.');
+        Spielbuch.log('There is no collection defined for ' + this.constructor.name + '.');
     };
 
     load(_id) {
-        var count = Spielebuch[this.getCollection()].find({_id: _id}, {_id: 1, limit: 1}).count();
+        var count = Spielbuch[this.getCollection()].find({_id: _id}, {_id: 1, limit: 1}).count();
         if (count === 0) {
-            Spielebuch.error(404, 'Object with _id ' + _id + ' was not found in ' + this.getCollection() + '.');
+            Spielbuch.error(404, 'Object with _id ' + _id + ' was not found in ' + this.getCollection() + '.');
             return false;
         }
         this._id = _id;
@@ -68,7 +68,7 @@ class BaseClass {
     }
 
     onCreate() {
-        Spielebuch.log('onCreate was not implemented for ' + this.getCollection() + '.');
+        Spielbuch.log('onCreate was not implemented for ' + this.getCollection() + '.');
     }
 
     /**
@@ -89,7 +89,7 @@ class BaseClass {
         if (typeof key === 'string' && value) {
             field = this.getFields()[key];
             if (!field) {
-                Spielebuch.error(500, 'The Field ' + key + ' is not defined.');
+                Spielbuch.error(500, 'The Field ' + key + ' is not defined.');
             }
             if (field.type) {
                 check(value, field.type);
@@ -104,7 +104,7 @@ class BaseClass {
                 }
                 field = this.getFields()[fieldKey];
                 if (!field) {
-                    Spielebuch.error(500, 'The Field ' + key + ' is not defined.');
+                    Spielbuch.error(500, 'The Field ' + key + ' is not defined.');
                 }
                 if (field.default && !data[fieldKey]) {
                     data[fieldKey] = field.default;
@@ -119,7 +119,7 @@ class BaseClass {
             /**
              * key is no string, but a value exist. This should not happen.
              */
-            Spielebuch.error(500, 'The update went wrong. Base.validate() was misused.');
+            Spielbuch.error(500, 'The update went wrong. Base.validate() was misused.');
         }
     }
 
@@ -130,9 +130,9 @@ class BaseClass {
             //we don't need this reactive, because the _id will never change.
             return this._id;
         }
-        data = Spielebuch[this.getCollection()].findOne(this._id);
+        data = Spielbuch[this.getCollection()].findOne(this._id);
         if (!data) {
-            Spielebuch.log('Object with _id ' + this._id + ' not found in ' + this.getCollection() + '.');
+            Spielbuch.log('Object with _id ' + this._id + ' not found in ' + this.getCollection() + '.');
             return undefined;
         }
         if (!key) {
@@ -141,7 +141,7 @@ class BaseClass {
         if (typeof key === 'string') {
             return data[key];
         } else {
-            Spielebuch.log('Key ' + key + 'is not a string.');
+            Spielbuch.log('Key ' + key + 'is not a string.');
         }
     }
 
@@ -160,22 +160,22 @@ class BaseClass {
             /**
              * key is no string, but a value exist. This should not happen.
              */
-            Spielebuch.error('500', 'The update went wrong. Base.set() was misused.');
+            Spielbuch.error('500', 'The update went wrong. Base.set() was misused.');
             return;
         }
         if (this._id) {
-            return Spielebuch[this.getCollection()].update(this._id, {$set: update});
+            return Spielbuch[this.getCollection()].update(this._id, {$set: update});
         } else {
-            return Spielebuch[this.getCollection()].insert(update);
+            return Spielbuch[this.getCollection()].insert(update);
         }
     }
 
     setInObject(objectKey, key, value){
         check(objectKey,String);
         check(key, String);
-        var doc = Spielebuch[this.getCollection()].findOne(this._id);
+        var doc = Spielbuch[this.getCollection()].findOne(this._id);
         doc[objectKey][key] = value;
-        Spielebuch[this.getCollection()].update(this._id, doc);
+        Spielbuch[this.getCollection()].update(this._id, doc);
     }
 
     /**
@@ -186,7 +186,7 @@ class BaseClass {
     push(key, value) {
         var update = {};
         update[key] = value;
-        return Spielebuch[this.getCollection()].update(this._id, {
+        return Spielbuch[this.getCollection()].update(this._id, {
             $push: update
         });
     }
@@ -200,4 +200,4 @@ class BaseClass {
         return _.last(this.get(key));
     }
 }
-Spielebuch.Base = BaseClass;
+Spielbuch.Base = BaseClass;

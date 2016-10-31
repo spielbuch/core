@@ -3,19 +3,19 @@
  * Copyright 2015 Daniel Budick All rights reserved.
  * Contact: daniel@budick.eu / http://budick.eu
  *
- * This file is part of spielebuch:core
- * spielebuch:core is free software: you can redistribute it and/or modify
+ * This file is part of spielbuch:core
+ * spielbuch:core is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
- * spielebuch:core is distributed in the hope that it will be useful,
+ * spielbuch:core is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with spielebuch:core. If not, see <http://www.gnu.org/licenses/>.
+ * along with spielbuch:core. If not, see <http://www.gnu.org/licenses/>.
  */
 
 class Effect {
@@ -54,7 +54,7 @@ class Effect {
     getRules() {
         var result = [];
         _.each(this.rules, function (rule) {
-            result.push(new Spielebuch.Rule(rule.key, rule.value));
+            result.push(new Spielbuch.Rule(rule.key, rule.value));
         });
         return result;
     }
@@ -64,7 +64,7 @@ class Effect {
      * @returns {{}}
      */
     getProperties() {
-        return Spielebuch.calculator.calculatePropertiesFromRules(this.getRules());
+        return Spielbuch.calculator.calculatePropertiesFromRules(this.getRules());
     }
 
     /**
@@ -74,15 +74,15 @@ class Effect {
     getPropertiesArray() {
         var result = [];
         _.each(this.getProperties(), function (value, key) {
-            result.push(new Spielebuch.Rule(key, value));
+            result.push(new Spielbuch.Rule(key, value));
         });
         return result;
     }
 }
-Spielebuch.Effect = Effect;
+Spielbuch.Effect = Effect;
 
 
-class HasEffectsClass extends Spielebuch.Base {
+class HasEffectsClass extends Spielbuch.Base {
     constructor(userId, load) {
         super(userId, load);
     }
@@ -93,7 +93,7 @@ class HasEffectsClass extends Spielebuch.Base {
          */
         if (Meteor.isServer) {
             Meteor.call('addEffect', this.getCollection(), this.get('_id'), effect.getJSON());
-            if (this.getValueByName(Spielebuch.Gameplay.hitpoints) < 0) {
+            if (this.getValueByName(Spielbuch.Gameplay.hitpoints) < 0) {
                 this.destroy();
             }
         }
@@ -101,9 +101,9 @@ class HasEffectsClass extends Spielebuch.Base {
             var gameObject = this;
             Meteor.call('addEffect', this.getCollection(), this.get('_id'), effect.getJSON(), function(err){
                 if(err){
-                    Spielebuch.error(500,err);
+                    Spielbuch.error(500,err);
                 }
-                if (gameObject.getValueByName(Spielebuch.Gameplay.hitpoints) < 0) {
+                if (gameObject.getValueByName(Spielbuch.Gameplay.hitpoints) < 0) {
                     gameObject.destroy();
                 }
             });
@@ -149,7 +149,7 @@ class HasEffectsClass extends Spielebuch.Base {
     getEffects() {
         var effects = this.get('effects'), result = [];
         _.forEach(effects, function (effect) {
-            result.push(new Spielebuch.Effect(effect.name, effect.rules));
+            result.push(new Spielbuch.Effect(effect.name, effect.rules));
         });
         return result;
     }
@@ -174,23 +174,23 @@ class HasEffectsClass extends Spielebuch.Base {
 
     destroy() {
         if (Meteor.isClient) {
-            Spielebuch.StoredFunction.execute(this.get('afterDestruction'), this.get('_id'));
+            Spielbuch.StoredFunction.execute(this.get('afterDestruction'), this.get('_id'));
         }
-        Spielebuch.GameObjects.remove(this.get('_id'));
+        Spielbuch.GameObjects.remove(this.get('_id'));
     }
 
     afterDestruction(fnc) {
         if (Meteor.isServer) {
-            var fncId = Spielebuch.StoredFunction.save(fnc, this.get('userId'), this.get('_id'));
+            var fncId = Spielbuch.StoredFunction.save(fnc, this.get('userId'), this.get('_id'));
             if (fncId) {
                 return fncId;
             } else {
-                Spielebuch.error(500, 'Could not store afterDestruction event for ' + this.get('_id') + '!');
+                Spielbuch.error(500, 'Could not store afterDestruction event for ' + this.get('_id') + '!');
             }
         } else {
-            Spielebuch.error(500, 'The client is not allowed to set an event, for it would be madness!');
+            Spielbuch.error(500, 'The client is not allowed to set an event, for it would be madness!');
         }
     }
 
 }
-Spielebuch.HasEffects = HasEffectsClass;
+Spielbuch.HasEffects = HasEffectsClass;

@@ -3,22 +3,22 @@
  * Copyright 2015 Daniel Budick All rights reserved.
  * Contact: daniel@budick.eu / http://budick.eu
  *
- * This file is part of spielebuch:core
- * spielebuch:core is free software: you can redistribute it and/or modify
+ * This file is part of spielbuch:core
+ * spielbuch:core is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
- * spielebuch:core is distributed in the hope that it will be useful,
+ * spielbuch:core is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with spielebuch:core. If not, see <http://www.gnu.org/licenses/>.
+ * along with spielbuch:core. If not, see <http://www.gnu.org/licenses/>.
  */
 
-class Story extends Spielebuch.Base {
+class Story extends Spielbuch.Base {
     constructor(userId, load) {
         super(userId, load);
         if (this.created) {
@@ -36,10 +36,10 @@ class Story extends Spielebuch.Base {
      */
     addDefaultEvent(name, fnc, icon) {
         if (Meteor.isClient) {
-            Spielebuch.error(403, 'You cannot add a defaultEvent to a story from the client.');
+            Spielbuch.error(403, 'You cannot add a defaultEvent to a story from the client.');
         }
         if (Meteor.isServer) {
-            var fncId = Spielebuch.StoredFunction.save(fnc, this.get('userId'));
+            var fncId = Spielbuch.StoredFunction.save(fnc, this.get('userId'));
             if (fncId) {
                 this.push('defaultEvents', {
                     name: name,
@@ -58,9 +58,9 @@ class Story extends Spielebuch.Base {
      * @returns {boolean}: Feedback if Id was set.
      */
     load(userId) {
-        var cursor = Spielebuch[this.getCollection()].find({userId: userId}, {_id: 1, userId: 1, limit: 1});
+        var cursor = Spielbuch[this.getCollection()].find({userId: userId}, {_id: 1, userId: 1, limit: 1});
         if (cursor.count() === 0) {
-            Spielebuch.error(404, 'Story for  user ' + userId + ' was not found in ' + this.getCollection() + '.');
+            Spielbuch.error(404, 'Story for  user ' + userId + ' was not found in ' + this.getCollection() + '.');
             return false;
         }
         this._id = cursor.fetch()[0]._id;
@@ -98,17 +98,17 @@ class Story extends Spielebuch.Base {
 
     createPlayer() {
         if (Meteor.isClient) {
-            Spielebuch.error(403, 'You cannot add a user to a story from the client.');
+            Spielbuch.error(403, 'You cannot add a user to a story from the client.');
         }
         if (Meteor.isServer) {
             var userId = this.get('userId');
-            Spielebuch.log('Creating player for user ' + userId + '.');
-            return new Spielebuch.Player(userId);
+            Spielbuch.log('Creating player for user ' + userId + '.');
+            return new Spielbuch.Player(userId);
         }
     }
 
     getPlayer() {
-        var player = new Spielebuch.Player(this.get('userId'), true);
+        var player = new Spielbuch.Player(this.get('userId'), true);
         return player;
     }
 
@@ -118,7 +118,7 @@ class Story extends Spielebuch.Base {
 
     addScene() {
         if (Meteor.isServer) {
-            var scene = new Spielebuch.Scene(this.get('userId'), this.get('_id'));
+            var scene = new Spielbuch.Scene(this.get('userId'), this.get('_id'));
             this.push('scenes', scene.get('_id'));
             scene.index = this.get('scenes').length - 1;
             return scene;
@@ -137,29 +137,29 @@ class Story extends Spielebuch.Base {
             playingSceneId = this.get('scenes')[0];
         }
         if (!playingSceneId) {
-            Spielebuch.error('500', 'This scene does not exist.');
+            Spielbuch.error('500', 'This scene does not exist.');
         } else {
-            Spielebuch.log('This story (' + this._id + ') starts with scene: ' + playingSceneId + ').');
+            Spielbuch.log('This story (' + this._id + ') starts with scene: ' + playingSceneId + ').');
             this.push('history', playingSceneId);
         }
     }
 
     startScene(sceneId) {
-        var scene = new Spielebuch.Scene();
+        var scene = new Spielbuch.Scene();
         scene.load(sceneId);
         scene.executeOnStart();
     }
 
     next(playingSceneIndex) {
         if (!playingSceneIndex) {
-            Spielebuch.error('500', 'Forgot to define the index of the next scene');
+            Spielbuch.error('500', 'Forgot to define the index of the next scene');
         }
         var sceneId = this.get('scenes')[playingSceneIndex];
         if (sceneId) {                           //test if this scene exists
             this.push('history', sceneId);      //if it exists it is pushed into the history. This will update the view via the observer.
             this.startScene(sceneId);
         } else {
-            Spielebuch.error('500', 'The scene with index ' + playingSceneIndex + ' does not exist.');
+            Spielbuch.error('500', 'The scene with index ' + playingSceneIndex + ' does not exist.');
         }
 
     }
@@ -190,5 +190,5 @@ class Story extends Spielebuch.Base {
 
 }
 
-Spielebuch.Story = Story;
-Spielebuch.Stories = new Mongo.Collection('stories');
+Spielbuch.Story = Story;
+Spielbuch.Stories = new Mongo.Collection('stories');

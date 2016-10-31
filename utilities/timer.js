@@ -12,21 +12,21 @@ Session.setDefault('spielbuchCountdownPercent',-1);
  * @returns {*}
  */
 var killSwitchUI = false;
-Spielebuch.startUiCountdown = function (timeInMs, steps, cb) {
+Spielbuch.startUiCountdown = function (timeInMs, steps, cb) {
     var time = timeInMs;
     if(killSwitchUI){
-        Spielebuch.stopCountdown(killSwitchUI);
+        Spielbuch.stopCountdown(killSwitchUI);
         killSwitchUI = false;
     }
 
-    Spielebuch.print('countdownStarted');
+    Spielbuch.print('countdownStarted');
     Session.set('spielbuchCountdownTime', time / 1000);
     Session.set('spielbuchCountdownTimeLeft', time / 1000);
     Session.set('spielbuchCountdownPercent',100);
     killSwitchUI = Meteor.setInterval(function () {
         time -= steps;
         if (time < 0) {
-            Spielebuch.stopCountdown(killSwitchUI);
+            Spielbuch.stopCountdown(killSwitchUI);
             return cb();
         }
         Session.set('spielbuchCountdownPercent', time / timeInMs * 100);
@@ -35,22 +35,22 @@ Spielebuch.startUiCountdown = function (timeInMs, steps, cb) {
     return killSwitchUI;
 };
 
-Spielebuch.startSilentCountdown = function (timeInMs, steps, cb) {
-    Spielebuch.print('countdownStarted');
+Spielbuch.startSilentCountdown = function (timeInMs, steps, cb) {
+    Spielbuch.print('countdownStarted');
     var time = timeInMs,
         killSwitch = Meteor.setInterval(function () {
             time -= steps;
             if (time < 0) {
-                Spielebuch.stopCountdown(killSwitch);
+                Spielbuch.stopCountdown(killSwitch);
                 return cb();
             }
         }, steps);
     return killSwitch;
 };
 
-Spielebuch.stopCountdown = function (killSwitch) {
+Spielbuch.stopCountdown = function (killSwitch) {
     Meteor.clearInterval(killSwitch);
-    Spielebuch.print('countdownEnded');
+    Spielbuch.print('countdownEnded');
     Session.set('spielbuchCountdownTime',-1);
     Session.set('spielbuchCountdownTimeLeft',-1);
     Session.set('spielbuchCountdownPercent',-1);

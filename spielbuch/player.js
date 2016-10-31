@@ -3,28 +3,28 @@
  * Copyright 2015 Daniel Budick All rights reserved.
  * Contact: daniel@budick.eu / http://budick.eu
  *
- * This file is part of spielebuch:core
- * spielebuch:core is free software: you can redistribute it and/or modify
+ * This file is part of spielbuch:core
+ * spielbuch:core is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
- * spielebuch:core is distributed in the hope that it will be useful,
+ * spielbuch:core is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with spielebuch:core. If not, see <http://www.gnu.org/licenses/>.
+ * along with spielbuch:core. If not, see <http://www.gnu.org/licenses/>.
  */
 
-class Player extends Spielebuch.HasEffects {
+class Player extends Spielbuch.HasEffects {
     constructor(userId, load) {
         super(userId, load);
         if (this.created) {
             this.onCreate();
         } else {
-            var doc = Spielebuch.Players.findOne({userId: userId});
+            var doc = Spielbuch.Players.findOne({userId: userId});
             if (doc) {
                 this._id = doc._id;
             }
@@ -49,8 +49,8 @@ class Player extends Spielebuch.HasEffects {
     }
 
     getBackpackList() {
-        return Spielebuch.GameObjects.find({referenceId: this.get('userId')}).map((gameObject)=> {
-            var equipped = this.equipped(gameObject._id);
+        return Spielbuch.GameObjects.find({referenceId: this.get('userId')}).map( gameObject => {
+            let equipped = this.equipped(gameObject._id);
             if (equipped === false) {
                 gameObject.equipped = 'false'; //we have to use a string, because Blaze has problems with bool.
             } else {
@@ -61,7 +61,7 @@ class Player extends Spielebuch.HasEffects {
     }
 
     destroy() {
-        Spielebuch.print('destroyedObject', this.get('name'));
+        Spielbuch.print('destroyedObject', this.get('name'));
         super.destroy();
     }
 
@@ -77,7 +77,7 @@ class Player extends Spielebuch.HasEffects {
          * Test if the object has been taken by the player.
          */
         if(gameObject.get('referenceId')!==this.get('userId')){
-            Spielebuch.error(500,`The player has to take the ${gameObject.get('name')} before it can be equipped.`);
+            Spielbuch.error(500,`The player has to take the ${gameObject.get('name')} before it can be equipped.`);
             return false;
         }
 
@@ -85,7 +85,7 @@ class Player extends Spielebuch.HasEffects {
             bodyPartName = gameObject.get('equipmentTarget');
         }
         if (bodyPartName !== gameObject.get('equipmentTarget')) {
-            Spielebuch.print('equippingFailed', gameObject.get('name'), bodyPartName);
+            Spielbuch.print('equippingFailed', gameObject.get('name'), bodyPartName);
             return false;
         }
 
@@ -94,7 +94,7 @@ class Player extends Spielebuch.HasEffects {
             body = this.getFields(this.get('userId')).body;
         }
         if (body[bodyPartName] === undefined) {
-            Spielebuch.print('equippingForbidden', gameObject.get('name'));
+            Spielbuch.print('equippingForbidden', gameObject.get('name'));
             return false;
         }
 
@@ -126,7 +126,7 @@ class Player extends Spielebuch.HasEffects {
                 /**
                  * check with the database
                  */
-                var doc = Spielebuch.GameObjects.findOne(gameObjectId);
+                var doc = Spielbuch.GameObjects.findOne(gameObjectId);
                 if (doc && doc.referenceId === this.get('userId')) {
                     result = key;
                 } else {
@@ -150,7 +150,7 @@ class Player extends Spielebuch.HasEffects {
         var result = [], index = 0;
         _.forEach(this.get('body'), (bodyPart)=> {
             if (bodyPart.value) {
-                result[index] = new Spielebuch.GameObject('', '', '', this.get('userId'), true);
+                result[index] = new Spielbuch.GameObject('', '', '', this.get('userId'), true);
                 result[index].load(bodyPart.value);
                 index++;
             }
@@ -175,7 +175,7 @@ class Player extends Spielebuch.HasEffects {
      * @returns {Effect}
      */
     createEquippedEffect() {
-        return new Spielebuch.Effect('Equipped', this.getEquippedRules());
+        return new Spielbuch.Effect('Equipped', this.getEquippedRules());
     }
 
     /**
@@ -218,13 +218,13 @@ class Player extends Spielebuch.HasEffects {
     attack(target, attack, name) {
         if (Meteor.isClient) {
             if (!name) {
-                name = Spielebuch.Gameplay.hitpoints;
+                name = Spielbuch.Gameplay.hitpoints;
             }
             if (!attack) {
-                attack = Spielebuch.Gameplay.damage;
+                attack = Spielbuch.Gameplay.damage;
             }
-            Spielebuch.calculator.calculateDamage(this, target, attack, name); //attack target
-            Spielebuch.calculator.calculateDamage(target, this, attack, name); //target fights back
+            Spielbuch.calculator.calculateDamage(this, target, attack, name); //attack target
+            Spielbuch.calculator.calculateDamage(target, this, attack, name); //target fights back
         }
     }
 
@@ -279,5 +279,5 @@ class Player extends Spielebuch.HasEffects {
         return 'Players';
     }
 }
-Spielebuch.Player = Player;
-Spielebuch.Players = new Mongo.Collection('players');
+Spielbuch.Player = Player;
+Spielbuch.Players = new Mongo.Collection('players');

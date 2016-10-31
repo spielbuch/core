@@ -3,51 +3,51 @@
  * Copyright 2015 Daniel Budick All rights reserved.
  * Contact: daniel@budick.eu / http://budick.eu
  *
- * This file is part of spielebuch:core
- * spielebuch:core is free software: you can redistribute it and/or modify
+ * This file is part of spielbuch:core
+ * spielbuch:core is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
- * spielebuch:core is distributed in the hope that it will be useful,
+ * spielbuch:core is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with spielebuch:core. If not, see <http://www.gnu.org/licenses/>.
+ * along with spielbuch:core. If not, see <http://www.gnu.org/licenses/>.
  */
 
-Spielebuch.Settings.debug = false;
+Spielbuch.Settings.debug = false;
 
 function clear(userId) {
-    Spielebuch.Stories.remove({
+    Spielbuch.Stories.remove({
         'userId': userId
     });
-    Spielebuch.Scenes.remove({
+    Spielbuch.Scenes.remove({
         'userId': userId
     });
-    Spielebuch.GameObjects.remove({
+    Spielbuch.GameObjects.remove({
         'userId': userId
     });
-    Spielebuch.StoredFunctions.remove({
+    Spielbuch.StoredFunctions.remove({
         'userId': userId
     });
-    Spielebuch.Players.remove({
+    Spielbuch.Players.remove({
         'userId': userId
     });
 }
-var swordDamage = new Spielebuch.Rule(Spielebuch.Gameplay.damage, '+60'),
-    iron = new Spielebuch.Rule(Spielebuch.Gameplay.hitpoints, 260),
-    humanHealth = new Spielebuch.Rule(Spielebuch.Gameplay.hitpoints, 80),
-    humanFistDamage = new Spielebuch.Rule(Spielebuch.Gameplay.damage, 20),
-    shieldDefense = new Spielebuch.Rule(Spielebuch.Gameplay.defense, '+20'),
-    wooden = new Spielebuch.Rule(Spielebuch.Gameplay.defense, 200);
+var swordDamage = new Spielbuch.Rule(Spielbuch.Gameplay.damage, '+60'),
+    iron = new Spielbuch.Rule(Spielbuch.Gameplay.hitpoints, 260),
+    humanHealth = new Spielbuch.Rule(Spielbuch.Gameplay.hitpoints, 80),
+    humanFistDamage = new Spielbuch.Rule(Spielbuch.Gameplay.damage, 20),
+    shieldDefense = new Spielbuch.Rule(Spielbuch.Gameplay.defense, '+20'),
+    wooden = new Spielbuch.Rule(Spielbuch.Gameplay.defense, 200);
 var userId = '1234asdf';
 
-Tinytest.add('Test Spielebuch constructors', function (test) {
-    var story = new Spielebuch.Story(userId);
-    test.instanceOf(story, Spielebuch.Story);
+Tinytest.add('Test Spielbuch constructors', function (test) {
+    var story = new Spielbuch.Story(userId);
+    test.instanceOf(story, Spielbuch.Story);
 
 
     test.isTrue(function () {
@@ -55,14 +55,14 @@ Tinytest.add('Test Spielebuch constructors', function (test) {
     }, 'Story does not work.');
 
     var player = story.createPlayer();
-    test.instanceOf(player, Spielebuch.Player);
+    test.instanceOf(player, Spielbuch.Player);
     test.isTrue(function () {
         return player.get('userId') === userId;
     }, 'Player does not work.');
 
     var sceneOne = story.addScene();
 
-    test.instanceOf(sceneOne, Spielebuch.Scene);
+    test.instanceOf(sceneOne, Spielbuch.Scene);
     var firstScene = sceneOne.index;
     story.start(firstScene);
 
@@ -83,7 +83,7 @@ Tinytest.add('Test Spielebuch constructors', function (test) {
     var tableText = '[Table](wooden_table)';
     var table = sceneOne.addText(tableText);
 
-    test.instanceOf(table, Spielebuch.GameObject);
+    test.instanceOf(table, Spielbuch.GameObject);
     test.isTrue(function () {
         return !!table.get('_id');
     }, 'Adding GameObjects via scene.addText() does not work.');
@@ -101,18 +101,18 @@ Tinytest.add('Test Spielebuch constructors', function (test) {
 });
 
 
-Tinytest.add('Test Spielebuch calculators', function (test) {
-    test.equal(Spielebuch.calculator.calculatePropertiesFromRules([swordDamage, swordDamage, swordDamage]), {"Damage": '+180'},
-        'Spielebuch.calculator.calculatePropertiesFromRules() does not work.');
-    test.equal(Spielebuch.calculator.calculatePropertiesFromRules([swordDamage, swordDamage, humanFistDamage]), {"Damage": 20},
-        'Spielebuch.calculator.calculatePropertiesFromRules() does not work with absolute override.');
-    test.equal(Spielebuch.calculator.calculatePropertiesFromRules([humanFistDamage, swordDamage, swordDamage, swordDamage]), {"Damage": 200},
-        'Spielebuch.calculator.calculatePropertiesFromRules() does not work with absolute and manipulators mixed.');
+Tinytest.add('Test Spielbuch calculators', function (test) {
+    test.equal(Spielbuch.calculator.calculatePropertiesFromRules([swordDamage, swordDamage, swordDamage]), {"Damage": '+180'},
+        'Spielbuch.calculator.calculatePropertiesFromRules() does not work.');
+    test.equal(Spielbuch.calculator.calculatePropertiesFromRules([swordDamage, swordDamage, humanFistDamage]), {"Damage": 20},
+        'Spielbuch.calculator.calculatePropertiesFromRules() does not work with absolute override.');
+    test.equal(Spielbuch.calculator.calculatePropertiesFromRules([humanFistDamage, swordDamage, swordDamage, swordDamage]), {"Damage": 200},
+        'Spielbuch.calculator.calculatePropertiesFromRules() does not work with absolute and manipulators mixed.');
 });
 
 
-Tinytest.add('Test Spielebuch Effects', function (test) {
-    var story = new Spielebuch.Story(userId);
+Tinytest.add('Test Spielbuch Effects', function (test) {
+    var story = new Spielbuch.Story(userId);
     var player = story.createPlayer();
     var sceneOne = story.addScene();
     var firstScene = sceneOne.index;
@@ -123,23 +123,23 @@ Tinytest.add('Test Spielebuch Effects', function (test) {
         return !!sword.get('_id');
     }, 'Adding GameObjects via scene.addText() does not work.');
 
-    sword.addEffect(new Spielebuch.Effect('iron', [swordDamage, iron]));
+    sword.addEffect(new Spielbuch.Effect('iron', [swordDamage, iron]));
 
 
     test.equal(sword.getRules(), [swordDamage, iron],
         'GameObject.getRules() does not work.');
 
-    test.instanceOf(sword.getRules()[0], Spielebuch.Rule);
+    test.instanceOf(sword.getRules()[0], Spielbuch.Rule);
 
-    test.instanceOf(sword.getObjectEffect(), Spielebuch.Effect);
+    test.instanceOf(sword.getObjectEffect(), Spielbuch.Effect);
 
-    test.equal(sword.getObjectEffect(), new Spielebuch.Effect('SwordEffect', [swordDamage, iron]),
+    test.equal(sword.getObjectEffect(), new Spielbuch.Effect('SwordEffect', [swordDamage, iron]),
         'GameObject.getObjectEffect() does not work.');
 
-    test.equal(sword.getValueByName(Spielebuch.Gameplay.damage), '+60',
+    test.equal(sword.getValueByName(Spielbuch.Gameplay.damage), '+60',
         'GameObject.getValueByName() does not work.');
 
-    test.equal(sword.getValueByName(Spielebuch.Gameplay.hitpoints), 260,
+    test.equal(sword.getValueByName(Spielbuch.Gameplay.hitpoints), 260,
         'GameObject.getValueByName() does not work.');
     test.equal(sword.getProperties(), {Damage: '+60', Hitpoints: 260},
         'GameObject.getProperties() does not work.');
@@ -151,16 +151,16 @@ Tinytest.add('Test Spielebuch Effects', function (test) {
      * add a second effect just for giggles... no seriously, this test showed me a huge mistake I made.
      * I <3 tinytest!
      */
-    sword.addEffect(new Spielebuch.Effect('sharp', [swordDamage]));
+    sword.addEffect(new Spielbuch.Effect('sharp', [swordDamage]));
 
     test.equal(sword.getRules(), [swordDamage, iron, swordDamage],
         'GameObject.getRules() does not work correctly when having multiple effects.');
 
-    test.equal(sword.getObjectEffect(), new Spielebuch.Effect('SwordEffect', [swordDamage, iron, swordDamage]),
+    test.equal(sword.getObjectEffect(), new Spielbuch.Effect('SwordEffect', [swordDamage, iron, swordDamage]),
         'GameObject.getObjectEffect() does not work correctly when having multiple effects.');
 
 
-    test.instanceOf(sword.getEffects()[0], Spielebuch.Effect);
+    test.instanceOf(sword.getEffects()[0], Spielbuch.Effect);
 
     test.equal(sword.getEffects(), [{
             "rules": [{"key": "Damage", "value": "+60"}, {"key": "Hitpoints", "value": 260}],
@@ -171,15 +171,15 @@ Tinytest.add('Test Spielebuch Effects', function (test) {
     test.equal(sword.getEffectNames(), ["iron", "sharp"],
         'GameObject.getEffectNames() does not work.');
 
-    test.equal(sword.getValueByName(Spielebuch.Gameplay.damage), '+120',
+    test.equal(sword.getValueByName(Spielbuch.Gameplay.damage), '+120',
         'GameObject.getValueByName() does not work correctly when having multiple effects.');
 
     clear(userId);
 });
 
 
-Tinytest.add('Test Spielebuch player I', function (test) {
-    var story = new Spielebuch.Story(userId);
+Tinytest.add('Test Spielbuch player I', function (test) {
+    var story = new Spielbuch.Story(userId);
     var player = story.createPlayer();
     var sceneOne = story.addScene();
     var firstScene = sceneOne.index;
@@ -231,14 +231,14 @@ Tinytest.add('Test Spielebuch player I', function (test) {
         handLeft: {value: false, icon: ''},
         handRight: {value: false, icon: ''}
     }, 'New bodyparts were not set.');
-    player.addEffect(new Spielebuch.Effect('Human', [humanHealth, humanFistDamage]));
+    player.addEffect(new Spielbuch.Effect('Human', [humanHealth, humanFistDamage]));
     test.equal(player.getRules(), [humanHealth, humanFistDamage],
         'Player.getRules() does not work.');
-    test.equal(player.getObjectEffect(), new Spielebuch.Effect(newUserName + 'Effect', [humanHealth, humanFistDamage]),
+    test.equal(player.getObjectEffect(), new Spielbuch.Effect(newUserName + 'Effect', [humanHealth, humanFistDamage]),
         'Player.getObjectEffect() does not work.');
-    test.equal(player.getValueByName(Spielebuch.Gameplay.damage), 20,
+    test.equal(player.getValueByName(Spielbuch.Gameplay.damage), 20,
         'Player.getValueByName() does not work.');
-    test.equal(player.getValueByName(Spielebuch.Gameplay.hitpoints), 80,
+    test.equal(player.getValueByName(Spielbuch.Gameplay.hitpoints), 80,
         'Player.getValueByName() does not work.');
     test.equal(player.getProperties(), {Damage: 20, Hitpoints: 80},
         'Player.getProperties() does not work.');
@@ -247,7 +247,7 @@ Tinytest.add('Test Spielebuch player I', function (test) {
 
 
     var sword = sceneOne.addText('[Sword](iron_sword)');
-    sword.addEffect(new Spielebuch.Effect('iron', [swordDamage, iron]));
+    sword.addEffect(new Spielbuch.Effect('iron', [swordDamage, iron]));
 
     sword.take();
     test.equal(sword.get('referenceId'), player.get('userId'),
@@ -291,10 +291,10 @@ Tinytest.add('Test Spielebuch player I', function (test) {
         'GameObject.destroy() does has no influence on Player.equipped().');
 });
 
-Tinytest.add('Test Spielebuch player II', function (test) {
-    var story = new Spielebuch.Story(userId);
+Tinytest.add('Test Spielbuch player II', function (test) {
+    var story = new Spielbuch.Story(userId);
     var player = story.createPlayer();
-    player.addEffect(new Spielebuch.Effect('Human', [humanHealth, humanFistDamage]));
+    player.addEffect(new Spielbuch.Effect('Human', [humanHealth, humanFistDamage]));
     var sceneOne = story.addScene();
     var firstScene = sceneOne.index;
     story.start(firstScene);
@@ -302,11 +302,11 @@ Tinytest.add('Test Spielebuch player II', function (test) {
      * create two  swords
      */
     var swordOne = sceneOne.addText('Another [SwordOne](iron_sword)');
-    swordOne.addEffect(new Spielebuch.Effect('iron', [swordDamage]));
+    swordOne.addEffect(new Spielbuch.Effect('iron', [swordDamage]));
     swordOne.setEquipRules('handRight');
 
     var swordTwo = sceneOne.addText('And a third [SwordTwo](iron_sword)');
-    swordTwo.addEffect(new Spielebuch.Effect('iron', [swordDamage]));
+    swordTwo.addEffect(new Spielbuch.Effect('iron', [swordDamage]));
     swordTwo.setEquipRules('handLeft');
     swordOne.take();
     test.equal(swordOne.get('referenceId'), player.get('userId'),
@@ -322,7 +322,7 @@ Tinytest.add('Test Spielebuch player II', function (test) {
      * We add a second GameObject for the other hand
      */
     var shield = sceneOne.addText('[Shield](iron_shield)');
-    shield.addEffect(new Spielebuch.Effect('iron', [shieldDefense, iron]));
+    shield.addEffect(new Spielbuch.Effect('iron', [shieldDefense, iron]));
     shield.setEquipRules('handLeft');
     shield.take();
     player.equip(shield);
@@ -365,23 +365,23 @@ Tinytest.add('Test Spielebuch player II', function (test) {
         },
         'Player.createEquippedEffect() does not work.');
 
-    test.equal(player.getEquippedValueByName(Spielebuch.Gameplay.hitpoints), 260,
-        'Player.createEquippedEffect(Spielebuch.Gameplay.hitpoints) does not work.');
-    test.equal(player.getEquippedValueByName(Spielebuch.Gameplay.damage), '+60',
-        'Player.createEquippedEffect(Spielebuch.Gameplay.damage) does not work.');
-    test.equal(player.getEquippedValueByName(Spielebuch.Gameplay.defense), '+20',
-        'Player.createEquippedEffect(Spielebuch.Gameplay.defense) does not work.');
+    test.equal(player.getEquippedValueByName(Spielbuch.Gameplay.hitpoints), 260,
+        'Player.createEquippedEffect(Spielbuch.Gameplay.hitpoints) does not work.');
+    test.equal(player.getEquippedValueByName(Spielbuch.Gameplay.damage), '+60',
+        'Player.createEquippedEffect(Spielbuch.Gameplay.damage) does not work.');
+    test.equal(player.getEquippedValueByName(Spielbuch.Gameplay.defense), '+20',
+        'Player.createEquippedEffect(Spielbuch.Gameplay.defense) does not work.');
 
     test.equal(player.getEquippedProperties(),
         {"Defense": "+20", "Hitpoints": 260, "Damage": "+60"},
         'Player.getEquippedProperties() does not work.');
 
-    test.equal(player.getEffectiveValueByName(Spielebuch.Gameplay.hitpoints), 340,
-        'Player.getEffectiveValueByName(Spielebuch.Gameplay.hitpoints) does not work.');
-    test.equal(player.getEffectiveValueByName(Spielebuch.Gameplay.damage), 80,
-        'Player.getEffectiveValueByName(Spielebuch.Gameplay.damage) does not work.');
-    test.equal(player.getEffectiveValueByName(Spielebuch.Gameplay.defense), 20,
-        'Player.getEffectiveValueByName(Spielebuch.Gameplay.defense) does not work.');
+    test.equal(player.getEffectiveValueByName(Spielbuch.Gameplay.hitpoints), 340,
+        'Player.getEffectiveValueByName(Spielbuch.Gameplay.hitpoints) does not work.');
+    test.equal(player.getEffectiveValueByName(Spielbuch.Gameplay.damage), 80,
+        'Player.getEffectiveValueByName(Spielbuch.Gameplay.damage) does not work.');
+    test.equal(player.getEffectiveValueByName(Spielbuch.Gameplay.defense), 20,
+        'Player.getEffectiveValueByName(Spielbuch.Gameplay.defense) does not work.');
 
 
     /**
@@ -398,21 +398,21 @@ Tinytest.add('Test Spielebuch player II', function (test) {
             {"key": "Damage", "value": "+60"}],
         'Player.getEquippedRules() does not work.');
 
-    test.equal(player.getEffectiveValueByName(Spielebuch.Gameplay.damage), 140,
-        'Player.getEffectiveValueByName(Spielebuch.Gameplay.damage) does not work with two manipulators.');
+    test.equal(player.getEffectiveValueByName(Spielbuch.Gameplay.damage), 140,
+        'Player.getEffectiveValueByName(Spielbuch.Gameplay.damage) does not work with two manipulators.');
 
 
 
     test.equal(player.getEquippedProperties(), {"Damage":"+120"},
         'Player.getEquippedProperties() does not work with two manipulators.');
-    test.equal(player.getEquippedValueByName(Spielebuch.Gameplay.damage), '+120',
-        'Player.getEquippedValueByName(Spielebuch.Gameplay.damage) does not work with two manipulators.');
+    test.equal(player.getEquippedValueByName(Spielbuch.Gameplay.damage), '+120',
+        'Player.getEquippedValueByName(Spielbuch.Gameplay.damage) does not work with two manipulators.');
 
     clear(userId);
 });
 
-Tinytest.add('Test Spielebuch fighting', function (test) {
-    var story = new Spielebuch.Story(userId);
+Tinytest.add('Test Spielbuch fighting', function (test) {
+    var story = new Spielbuch.Story(userId);
     var player = story.createPlayer();
     player.set('body', {
         handLeft: {value: false, icon: ''},
@@ -426,19 +426,19 @@ Tinytest.add('Test Spielebuch fighting', function (test) {
 
     var tableText = '[Table](wooden_table)';
     var table = sceneOne.addText(tableText);
-    table.addEffect(new Spielebuch.Effect('wooden', [wooden]));
+    table.addEffect(new Spielbuch.Effect('wooden', [wooden]));
 
     var sword = sceneOne.addText('[Sword](iron_sword)');
-    test.instanceOf(sword, Spielebuch.GameObject);
+    test.instanceOf(sword, Spielbuch.GameObject);
 
-    sword.addEffect(new Spielebuch.Effect('iron', [swordDamage]));
+    sword.addEffect(new Spielbuch.Effect('iron', [swordDamage]));
     sword.setEquipRules('handRight');
     sword.take();
     player.equip(sword);
 
     var shield = sceneOne.addText('[Shield](iron_shield)');
-    test.instanceOf(shield, Spielebuch.GameObject);
-    shield.addEffect(new Spielebuch.Effect('iron', [shieldDefense]));
+    test.instanceOf(shield, Spielbuch.GameObject);
+    shield.addEffect(new Spielbuch.Effect('iron', [shieldDefense]));
     shield.setEquipRules('handLeft');
     shield.take();
     player.equip(shield);

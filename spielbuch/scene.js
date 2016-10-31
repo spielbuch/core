@@ -3,22 +3,22 @@
  * Copyright 2015 Daniel Budick All rights reserved.
  * Contact: daniel@budick.eu / http://budick.eu
  *
- * This file is part of spielebuch:core
- * spielebuch:core is free software: you can redistribute it and/or modify
+ * This file is part of spielbuch:core
+ * spielbuch:core is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
- * spielebuch:core is distributed in the hope that it will be useful,
+ * spielbuch:core is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with spielebuch:core. If not, see <http://www.gnu.org/licenses/>.
+ * along with spielbuch:core. If not, see <http://www.gnu.org/licenses/>.
  */
 
-class Scene extends Spielebuch.Base {
+class Scene extends Spielbuch.Base {
     constructor(userId, storyId, load) {
         super(userId, load);
 
@@ -100,14 +100,14 @@ class Scene extends Spielebuch.Base {
                 if (regexResult !== null) {
                     var objectName = regexResult[1];
                     var objectKey = regexResult[2];
-                    var gameObject = new Spielebuch.GameObject(objectName, objectKey, this.get('_id'), this.get('userId'),false);
+                    var gameObject = new Spielbuch.GameObject(objectName, objectKey, this.get('_id'), this.get('userId'),false);
                     text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/, '[' + gameObject.get('_id') + ']');
                     gameObjectArray.push({key: objectKey, gameObject: gameObject});
                 }
                 textStack.push(text);
             });
             this.push('text', textStack);
-            Spielebuch.log('Added text to scene ' + this._id + '.');
+            Spielbuch.log('Added text to scene ' + this._id + '.');
             if (gameObjectArray.length > 1) {
                 _.forEach(gameObjectArray, (item)=> {
                     result[item.key] = item.gameObject;
@@ -126,14 +126,14 @@ class Scene extends Spielebuch.Base {
 
     onFirstVisit(fnc) {
         if (Meteor.isServer) {
-            var fncId = Spielebuch.StoredFunction.save(fnc, this.get('userId'), this.get('_id'));
+            var fncId = Spielbuch.StoredFunction.save(fnc, this.get('userId'), this.get('_id'));
             this.set('onFirstVisit', fncId);
         }
     }
 
     onVisit(fnc) {
         if (Meteor.isServer) {
-            var fncId = Spielebuch.StoredFunction.save(fnc, this.get('userId'));
+            var fncId = Spielbuch.StoredFunction.save(fnc, this.get('userId'));
             this.set('onVisit', fncId);
         }
     }
@@ -143,12 +143,12 @@ class Scene extends Spielebuch.Base {
             var visited = this.get('visited');
             if (visited) {
                 if(this.get('onVisit')){
-                    Spielebuch.StoredFunction.execute(this.get('onVisit'));
+                    Spielbuch.StoredFunction.execute(this.get('onVisit'));
                 }
             }
             else {
                 if(this.get('onFirstVisit')){
-                    Spielebuch.StoredFunction.execute(this.get('onFirstVisit'));
+                    Spielbuch.StoredFunction.execute(this.get('onFirstVisit'));
                 }
                 this.set('visited', true);
             }
@@ -156,6 +156,6 @@ class Scene extends Spielebuch.Base {
     }
 }
 
-Spielebuch.Scene = Scene;
-Spielebuch.Scenes = new Mongo.Collection('scenes');
+Spielbuch.Scene = Scene;
+Spielbuch.Scenes = new Mongo.Collection('scenes');
 
